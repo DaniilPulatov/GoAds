@@ -4,9 +4,9 @@ import "context"
 
 type AdRepository interface {
 	// will be used for admin only
-	GetAll(ctx context.Context, userID string) ([]Ad, error)
-	GetSome(ctx context.Context, userID string, limit int) ([]Ad, error)
-	GetByID(ctx context.Context, userID string, id int) (*Ad, error)
+	GetAll(ctx context.Context ) ([]Ad, error)
+	GetSome(ctx context.Context, limit int) ([]Ad, error)
+	GetByID(ctx context.Context, id int) (*Ad, error)
 
 	// Will be used for user and admin
 	GetByUserID(ctx context.Context, userUUid string) (*Ad, error)
