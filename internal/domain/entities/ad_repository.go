@@ -1,10 +1,12 @@
 package entities
 
-import "context"
+import (
+	"context"
+)
 
 type AdRepository interface {
 	// will be used for admin only
-	GetAll(ctx context.Context ) ([]Ad, error)
+	GetAll(ctx context.Context) ([]Ad, error)
 	GetSome(ctx context.Context, limit int) ([]Ad, error)
 	GetByID(ctx context.Context, id int) (*Ad, error)
 
@@ -17,12 +19,22 @@ type AdRepository interface {
 
 	Update(ctx context.Context, ad *Ad) error
 	Delete(ctx context.Context, adID int) error
+}
 
-	AttachFile(ctx context.Context, adID int, fileURL string, userUUid string) error
+type UserPermissions interface {
+	AdRepository
+
+	AttachFile(ctx context.Context, adID int, file *AdFile) error
+	UpdateFile(ctx context.Context, adID int, file *AdFile) error
+	// DeleteFile(ctx context.Context, adID int, fileID int) error
 
 	CreateAndSendAd(ctx context.Context, ad *Ad) error // automatically send for moderation
 	CreateDraft(ctx context.Context, ad *Ad) error
 	SendForModeration(ctx context.Context, adID int) error
+}
+
+type AdminPermissions interface {
+	AdRepository
 
 	PublishAd(ctx context.Context, id int) error
 	RejectAd(ctx context.Context, id int) error

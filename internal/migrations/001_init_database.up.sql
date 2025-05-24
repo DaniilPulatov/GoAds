@@ -34,7 +34,7 @@ CREATE TABLE ads (
     category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
     status ad_status NOT NULL DEFAULT 'draft',
     rejection_reason TEXT,
-    is_active BOOLEAN NOT NULL DEFAULT true,
+    is_active BOOLEAN NOT NULL DEFAULT false, -- send for moderation to make it true
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CHECK (
@@ -45,8 +45,8 @@ CREATE TABLE ads (
 
 CREATE TABLE ad_files (
     id SERIAL PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    url VARCHAR(512) NOT NULL,
     ad_id INTEGER NOT NULL REFERENCES ads(id) ON DELETE CASCADE,
+    url VARCHAR(512) NOT NULL,
     file_name VARCHAR(255),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
