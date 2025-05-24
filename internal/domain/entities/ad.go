@@ -21,7 +21,7 @@ type Ad struct {
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	AuthorID        uuid.UUID
-	Files            []AdFile // files that are attached to the ad
+	Files           []AdFile // files that are attached to the ad
 	Title           string
 	Description     string
 	Status          Status

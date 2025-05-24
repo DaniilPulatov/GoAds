@@ -119,7 +119,7 @@ var (
 		GROUP BY ads.id
 		ORDER BY ads.id;
 	`
-	adUpdate =` UPDATE ads
+	adUpdate = ` UPDATE ads
 		SET 
 		title = $1,
 		description = $2,
@@ -144,7 +144,7 @@ func (r AdRepo) GetAll(ctx context.Context) ([]entities.Ad, error) {
 		return nil, repoerr.ErrSelection
 	}
 
-	return r.queryRows(rows)	
+	return r.queryRows(rows)
 }
 func (r AdRepo) GetSome(ctx context.Context, limit int) ([]entities.Ad, error) {
 	rows, err := r.db.Query(ctx, adSelectLimit, limit)
@@ -163,7 +163,7 @@ func (r AdRepo) GetSome(ctx context.Context, limit int) ([]entities.Ad, error) {
 func (r AdRepo) GetByID(ctx context.Context, id int) (*entities.Ad, error) {
 	row := r.db.QueryRow(ctx, adSelectByID, id)
 	ad, err := r.queryRow(row)
-	if err!= nil {
+	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			log.Println("No ad found with ID:", id)
 			return nil, repoerr.ErrNoRows
@@ -172,12 +172,12 @@ func (r AdRepo) GetByID(ctx context.Context, id int) (*entities.Ad, error) {
 		return nil, repoerr.ErrSelection
 	}
 	return ad, nil
-	
+
 }
 func (r AdRepo) GetByUserID(ctx context.Context, userUUid string) (*entities.Ad, error) {
 	row := r.db.QueryRow(ctx, adSelectByUserID, userUUid)
 	ad, err := r.queryRow(row)
-	if err!= nil {
+	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			log.Println("No ad found with ID:", userUUid)
 			return nil, repoerr.ErrNoRows
@@ -188,7 +188,7 @@ func (r AdRepo) GetByUserID(ctx context.Context, userUUid string) (*entities.Ad,
 	return ad, nil
 }
 func (r AdRepo) GetSomeByUserID(ctx context.Context, userID string, limit int) ([]entities.Ad, error) {
-	rows, err := r.db.Query(ctx, adSelectLimit,userID, limit)
+	rows, err := r.db.Query(ctx, adSelectLimit, userID, limit)
 	if err != nil {
 		log.Println("Query error:", err)
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -204,7 +204,7 @@ func (r AdRepo) GetSomeByUserID(ctx context.Context, userID string, limit int) (
 func (r AdRepo) GetByCat(ctx context.Context, catID int) (*entities.Ad, error) {
 	row := r.db.QueryRow(ctx, adSelectByCat, catID)
 	ad, err := r.queryRow(row)
-	if err!= nil {
+	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			log.Println("No ads found with category ID:", catID)
 			return nil, repoerr.ErrNoRows
