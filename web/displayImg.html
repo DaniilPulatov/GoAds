@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Uploaded Files</title>
+    <style>
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .gallery-item {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #333;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">Uploaded Files</h1>
+    <div class="gallery">
+        {{range .Files}}
+        <div class="gallery-item">
+            <img src="{{.URL}}" alt="{{.FileName}}">
+            <div class="file-name">{{.FileName}}</div>
+        </div>
+        {{end}}
+    </div>
+</body>
+</html>
