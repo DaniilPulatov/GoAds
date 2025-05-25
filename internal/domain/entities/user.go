@@ -1,7 +1,5 @@
 package entities
 
-import uuid "github.com/jackc/pgtype/ext/gofrs-uuid"
-
 // Role - for role-based auth.
 type Role string
 
@@ -17,5 +15,5 @@ type User struct {
 	LName        string
 	PasswordHash string
 	Phone        string
-	ID           uuid.UUID
+	ID           string
 }
