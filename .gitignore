@@ -1,3 +1,4 @@
+# Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
@@ -10,8 +11,15 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# Go workspace file
+go.work
+
 # Binaries
 main
+bin/
+
+# Config files
+*.env
 
 # Dependency directories (remove the comment below to include it)
 vendor/
