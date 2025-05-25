@@ -2,12 +2,15 @@ name: Lint source code
 on:
   push:
     branches:
-      - main
-      - origin
+      - develop
   pull_request:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.actor }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   golangci:
@@ -19,18 +22,22 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "stable"
+          check-latest: true
+          cache-dependency-path: |
+            ./go.sum
 
       - name: Install golangci-lint
         run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+
       - name: Build custom golangci-lint plugin
         run: |
           $(which golangci-lint) custom
 
-
       - name: Update dependencies and tidy up
         run: |
           go mod tidy
+
       - name: Run custom linter
         run: |
           ./bin/custom-gcl run ./... --timeout=10m
