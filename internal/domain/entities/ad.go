@@ -2,10 +2,8 @@ package entities
 
 import (
 	"time"
-
-	uuid "github.com/jackc/pgtype/ext/gofrs-uuid"
 )
-
+ 
 // Status - represent allowed statuses to be used for ad.
 type Status string
 
@@ -25,9 +23,9 @@ type Ad struct {
 	Location        string
 	Description     string
 	RejectionReason string
+	AuthorID        string
 	CategoryID      int
 	ID              int
-	AuthorID        uuid.UUID // take less space if it here
 	IsActive        bool
 }
 

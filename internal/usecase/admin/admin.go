@@ -3,14 +3,16 @@ package admin
 import (
 	"ads-service/internal/domain/entities"
 	"ads-service/internal/repository/ad"
+	"context"
 )
 
 type AdminAdvertisementService interface {
-	GetAllAds(filter *entities.AdFilter) ([]entities.Ad, error)
-	GetStatistics() (entities.AdStatistics, error)
-	ChangeAdStatus(adID string, status string, adminID string) error
-	DeleteAd(adID string, adminID string) error
-	DeleteImage(adID string, imageID string, adminID string) error
+	GetAllAds(ctx context.Context, filter *entities.AdFilter) ([]entities.Ad, error)
+	GetStatistics(ctx context.Context, ) (entities.AdStatistics, error)
+	DeleteAd(ctx context.Context, adID int, adminID string) error
+	DeleteImage(ctx context.Context, adID int, imageID int, adminID string) error
+	Approve(ctx context.Context, adID int, adminID string) error
+	Reject(ctx context.Context, adID int, adminID string) error
 }
 
 type Service struct {
@@ -22,19 +24,25 @@ func NewAdminService(adRepo ad.AdRepository) AdminAdvertisementService {
 		adRepo: adRepo,
 	}
 }
-func (s *Service) GetAllAds(filter *entities.AdFilter) ([]entities.Ad, error) {
+func (s *Service) GetAllAds(ctx context.Context, filter *entities.AdFilter) ([]entities.Ad, error) {
 	return nil, nil // TODO: implement
 }
-func (s *Service) ChangeAdStatus(adID, status, adminID string) error {
+
+func (s *Service) DeleteAd(ctx context.Context, adID int, adminID string) error {
 	return nil // TODO: implement
 }
-func (s *Service) DeleteAd(adID, adminID string) error {
-	return nil // TODO: implement
-}
-func (s *Service) GetStatistics() (entities.AdStatistics, error) {
+func (s *Service) GetStatistics(ctx context.Context, ) (entities.AdStatistics, error) {
 	return entities.AdStatistics{}, nil // TODO: implement
 }
-func (s *Service) DeleteImage(adID, imageID, adminID string) error {
+func (s *Service) DeleteImage(ctx context.Context, adID, imageID int, adminID string) error {
+	return nil // TODO: implement
+}
+
+func (s *Service) Approve(ctx context.Context, adID int, adminID string) error {
+	return nil // TODO: implement
+}
+
+func (s *Service) Reject(ctx context.Context, adID int, adminID string) error {
 	return nil // TODO: implement
 }
 
