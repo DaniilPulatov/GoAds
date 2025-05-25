@@ -8,7 +8,7 @@ import (
 
 type AdminAdvertisementService interface {
 	GetAllAds(ctx context.Context, filter *entities.AdFilter) ([]entities.Ad, error)
-	GetStatistics(ctx context.Context, ) (entities.AdStatistics, error)
+	GetStatistics(ctx context.Context) (entities.AdStatistics, error)
 	DeleteAd(ctx context.Context, adID int, adminID string) error
 	DeleteImage(ctx context.Context, adID int, imageID int, adminID string) error
 	Approve(ctx context.Context, adID int, adminID string) error
@@ -31,7 +31,7 @@ func (s *Service) GetAllAds(ctx context.Context, filter *entities.AdFilter) ([]e
 func (s *Service) DeleteAd(ctx context.Context, adID int, adminID string) error {
 	return nil // TODO: implement
 }
-func (s *Service) GetStatistics(ctx context.Context, ) (entities.AdStatistics, error) {
+func (s *Service) GetStatistics(ctx context.Context) (entities.AdStatistics, error) {
 	return entities.AdStatistics{}, nil // TODO: implement
 }
 func (s *Service) DeleteImage(ctx context.Context, adID, imageID int, adminID string) error {

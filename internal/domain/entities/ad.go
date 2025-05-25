@@ -3,7 +3,7 @@ package entities
 import (
 	"time"
 )
- 
+
 // Status - represent allowed statuses to be used for ad.
 type Status string
 

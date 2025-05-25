@@ -6,7 +6,6 @@ import (
 	usecaseerr "ads-service/internal/errs/usecaseErr"
 	"ads-service/internal/repository/ad"
 	"context"
-	"crypto/internal/fips140/edwards25519/field"
 	"log"
 	"os"
 )
@@ -54,12 +53,12 @@ func (s *service) AddImageToMyAd(ctx context.Context, userID string, file *entit
 		log.Printf("error getting ads by user ID %s: %v", userID, err)
 		return repoerr.ErrSelection
 	}
-	if ad.AuthorID != userID{
+	if ad.AuthorID != userID {
 		log.Println("error: user does not own the ad")
 		return usecaseerr.ErrAccessDenied
 	}
 	fileID, err := s.repo.AddImage(ctx, file)
-	if  err != nil {
+	if err != nil {
 		log.Printf("error adding image to ad %d: %v", file.AdID, err)
 		return repoerr.ErrFileInsertion
 	}
@@ -68,7 +67,7 @@ func (s *service) AddImageToMyAd(ctx context.Context, userID string, file *entit
 	return nil
 }
 
-func (s *service) DeleteMyAdImage(ctx context.Context, userID string, file *entities.AdFile) (error) {
+func (s *service) DeleteMyAdImage(ctx context.Context, userID string, file *entities.AdFile) error {
 	ad, err := s.repo.GetByID(ctx, file.AdID)
 	if err != nil {
 		log.Printf("error getting ad by ID %d: %v", file.AdID, err)

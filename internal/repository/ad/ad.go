@@ -58,11 +58,11 @@ func (r adRepo) ChangeStatus(ctx context.Context, id int, status, adminID string
 func (r adRepo) AddImage(ctx context.Context, file *entities.AdFile) (int, error) {
 	var (
 		insertQuery = `INSERT INTO ad_files (ad_id, file_name, url) VALUES ($1, $2, $3) RETURNING id`
-		fileID int
+		fileID      int
 	)
 	row := r.db.QueryRow(ctx, insertQuery, file.AdID, file.FileName, file.URL)
 	err := row.Scan(&fileID)
-	if  err != nil {
+	if err != nil {
 		log.Println("Error scanning fileID:", err)
 		return -1, repoerr.ErrFileInsertion
 	}
@@ -72,10 +72,10 @@ func (r adRepo) AddImage(ctx context.Context, file *entities.AdFile) (int, error
 func (r adRepo) DeleteImage(ctx context.Context, file *entities.AdFile) (string, error) {
 	var (
 		selectQuery = `SELECT url FROM ad_files WHERE id = $1 RETURNING url`
-		delteQuery = `DELETE FROM ad_files WHERE id = $1 AND ad_id = $2`
-		url string
+		delteQuery  = `DELETE FROM ad_files WHERE id = $1 AND ad_id = $2`
+		url         string
 	)
-	
+
 	row := r.db.QueryRow(ctx, selectQuery, file.ID)
 	err := row.Scan(&url)
 	if err != nil {
@@ -86,7 +86,7 @@ func (r adRepo) DeleteImage(ctx context.Context, file *entities.AdFile) (string,
 		log.Println("Error selecting ad file:", err)
 		return "", repoerr.ErrSelection
 	}
-	
+
 	if _, err := r.db.Exec(ctx, delteQuery, file.ID, file.AdID); err != nil {
 		log.Println("Error deleting ad file:", err)
 		return "", repoerr.ErrFileDeletion
