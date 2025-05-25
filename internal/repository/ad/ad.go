@@ -43,6 +43,16 @@ func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, 
 	return nil, nil
 }
 func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
+	_, err := r.db.Exec(ctx, `
+		INSERT INTO ads(title, description, author_id, category_id, location,
+		                is_active, created_at, updated_at)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
+		ad.Title, ad.Description, ad.AuthorID, ad.Location, ad.CategoryID,
+		ad.IsActive, ad.CreatedAt, ad.UpdatedAt)
+	if err != nil {
+		return repoerr.ErrInsert
+	}
+
 	return nil
 }
 func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
