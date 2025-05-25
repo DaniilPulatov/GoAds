@@ -35,7 +35,7 @@ func (s *Service) GetMyAds(userID string) ([]entities.Ad, error) {
 
 func (s *Service) UpdateMyAd(userID string, ad *entities.Ad) error {
 	return nil //TODO: implement
-}	
+}
 func (s *Service) DeleteMyAd(userID string, adID string) error {
 	return nil //TODO: implement
 }

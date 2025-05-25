@@ -1,13 +1,17 @@
 package repoerr
 
-import "errors"
+type Error string
+
+func (e Error) Error() string {
+	return string(e)
+}
 
 var (
-	ErrSelection = errors.New("error selecting ads from database")
-	ErrInsert    = errors.New("error inserting ad into database")
-	ErrUpdate    = errors.New("error updating ad in database")
-	ErrDelete    = errors.New("error deleting ad from database")
-	ErrNoRows    = errors.New("no rows found in database for the query")
+	ErrSelection = Error("error selecting ads from database")
+	ErrInsert    = Error("error inserting ad into database")
+	ErrUpdate    = Error("error updating ad in database")
+	ErrDelete    = Error("error deleting ad from database")
+	ErrNoRows    = Error("no rows found in database for the query")
 
-	ErrJsonUnmarshal = errors.New("error unmarshalling JSON data from database")
+	ErrJSONUnmarshal = Error("error unmarshalling JSON data from database")
 )

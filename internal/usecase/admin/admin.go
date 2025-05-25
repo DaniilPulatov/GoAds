@@ -37,6 +37,10 @@ func (s *Service) GetStatistics() (entities.AdStatistics, error) {
 func (s *Service) DeleteImage(adID string, imageID string, adminID string) error {
 	return nil // TODO: implement
 }
+
 // Additional methods for the admin service can be added here as needed.
-// This service will handle administrative tasks related to advertisements, such as managing ad statuses and retrieving statistics.
+
+// This service will handle administrative tasks related to advertisements,
+// such as managing ad statuses and retrieving statistics.
+
 // The methods will interact with the ad repository to perform the necessary operations.

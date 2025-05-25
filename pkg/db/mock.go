@@ -1,8 +1,8 @@
+//nolint:all // файл содержит моки для тестов, проверки линтеров не требуются
 package db
 
 import (
 	"context"
-
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/mock"

@@ -1,10 +1,8 @@
 package entities
 
-import (
-	uuid "github.com/jackc/pgtype/ext/gofrs-uuid"
-)
+import uuid "github.com/jackc/pgtype/ext/gofrs-uuid"
 
-// Role - for role based auth.
+// Role - for role-based auth.
 type Role string
 
 // The only allowed roles.
@@ -14,10 +12,10 @@ const (
 )
 
 type User struct {
-	ID           uuid.UUID
 	Role         Role
 	FName        string
 	LName        string
 	PasswordHash string
 	Phone        string
+	ID           uuid.UUID
 }
