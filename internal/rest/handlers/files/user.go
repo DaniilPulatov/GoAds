@@ -63,7 +63,7 @@ func (h *UserHandler) DeleteMyAdImage(c *gin.Context) {
 	}
 
 	file := &entities.AdFile{
-		ID:  intfID,
+		ID:   intfID,
 		AdID: intID,
 	}
 
