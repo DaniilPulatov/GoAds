@@ -25,16 +25,16 @@ func NewAdminService(adRepo ad.AdRepository) AdminAdvertisementService {
 func (s *Service) GetAllAds(filter *entities.AdFilter) ([]entities.Ad, error) {
 	return nil, nil // TODO: implement
 }
-func (s *Service) ChangeAdStatus(adID string, status string, adminID string) error {
+func (s *Service) ChangeAdStatus(adID, status, adminID string) error {
 	return nil // TODO: implement
 }
-func (s *Service) DeleteAd(adID string, adminID string) error {
+func (s *Service) DeleteAd(adID, adminID string) error {
 	return nil // TODO: implement
 }
 func (s *Service) GetStatistics() (entities.AdStatistics, error) {
 	return entities.AdStatistics{}, nil // TODO: implement
 }
-func (s *Service) DeleteImage(adID string, imageID string, adminID string) error {
+func (s *Service) DeleteImage(adID, imageID, adminID string) error {
 	return nil // TODO: implement
 }
 

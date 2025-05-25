@@ -48,11 +48,11 @@ func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
 func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
 	return nil
 }
-func (r adRepo) Delete(ctx context.Context, id string, userID string) error {
+func (r adRepo) Delete(ctx context.Context, id, userID string) error {
 	return nil
 }
 
-func (r adRepo) ChangeStatus(ctx context.Context, id string, status string, adminID string) error {
+func (r adRepo) ChangeStatus(ctx context.Context, id, status, adminID string) error {
 	return nil
 }
 func (r adRepo) AddImage(ctx context.Context, file *entities.AdFile) error {
