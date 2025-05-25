@@ -12,7 +12,7 @@ type UserAdvertisementService interface {
 	DeleteMyAd(userID string, adID string) error
 	SubmitForModeration(userID string, adID string) error
 	AddImageToMyAd(userID string, adID string, imageURL string) error
-	DelteteMyAdImage(userID string, adID string, imageID string) error
+	DeleteMyAdImage(userID string, adID string, imageID string) error
 }
 
 type Service struct {
@@ -25,7 +25,7 @@ func NewUserService(repo ad.AdRepository) UserAdvertisementService {
 	}
 }
 
-func (s *Service) CreateDraft(userID string, ad *entities.Ad) error {
+func (s *Service) CreateDraft(userID string, adEntity *entities.Ad) error {
 	return nil //TODO: implement
 }
 
@@ -33,19 +33,19 @@ func (s *Service) GetMyAds(userID string) ([]entities.Ad, error) {
 	return nil, nil //TODO: implement
 }
 
-func (s *Service) UpdateMyAd(userID string, ad *entities.Ad) error {
-	return nil //TODO: implement
-}	
-func (s *Service) DeleteMyAd(userID string, adID string) error {
+func (s *Service) UpdateMyAd(userID string, adEntity *entities.Ad) error {
 	return nil //TODO: implement
 }
-func (s *Service) SubmitForModeration(userID string, adID string) error {
+func (s *Service) DeleteMyAd(userID, adID string) error {
 	return nil //TODO: implement
 }
-func (s *Service) AddImageToMyAd(userID string, adID string, imageURL string) error {
+func (s *Service) SubmitForModeration(userID, adID string) error {
+	return nil //TODO: implement
+}
+func (s *Service) AddImageToMyAd(userID, adID, imageURL string) error {
 	return nil //TODO: implement
 }
 
-func (s *Service) DelteteMyAdImage(userID string, adID string, imageID string) error {
+func (s *Service) DeleteMyAdImage(userID, adID, imageID string) error {
 	return nil //TODO: implement
 }

@@ -23,49 +23,49 @@ type AdRepository interface {
 	DeleteImage(ctx context.Context, file *entities.AdFile) error
 }
 
-type AdRepo struct {
+type adRepo struct {
 	db *pgxpool.Pool
 }
 
 func NewAdRepo(db *pgxpool.Pool) AdRepository {
-	return &AdRepo{db: db}
+	return &adRepo{db: db}
 }
 
-
-func (r AdRepo)GetAll(ctx context.Context, filter *entities.AdFilter) ([]entities.Ad, error) {
+func (r adRepo) GetAll(ctx context.Context, filter *entities.AdFilter) ([]entities.Ad, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (r AdRepo) GetByID(ctx context.Context, id string) (*entities.Ad, error) {
+func (r adRepo) GetByID(ctx context.Context, id string) (*entities.Ad, error) {
 	return nil, nil
 }
 
-func (r AdRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, error) {
+func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, error) {
 	return nil, nil
 }
-func (r AdRepo) Create(ctx context.Context, ad *entities.Ad) error {
+func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
 	return nil
 }
-func (r AdRepo) Update(ctx context.Context, ad *entities.Ad) error {
+func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
 	return nil
 }
-func (r AdRepo) Delete(ctx context.Context, id string, userID string) error {
-	return nil
-}
-
-func (r AdRepo) ChangeStatus(ctx context.Context, id string, status string, adminID string) error {
-	return nil
-}
-func (r AdRepo) AddImage(ctx context.Context, file *entities.AdFile) error {
+func (r adRepo) Delete(ctx context.Context, id, userID string) error {
 	return nil
 }
 
-func (r AdRepo) DeleteImage(ctx context.Context, file *entities.AdFile) error{
+func (r adRepo) ChangeStatus(ctx context.Context, id, status, adminID string) error {
+	return nil
+}
+func (r adRepo) AddImage(ctx context.Context, file *entities.AdFile) error {
 	return nil
 }
 
-// queryRows - helper function that processes the rows returned from the database query and unmarshals the JSON data for files.
-func (r AdRepo) queryRows(rows pgx.Rows) ([]entities.Ad, error) {
+func (r adRepo) DeleteImage(ctx context.Context, file *entities.AdFile) error {
+	return nil
+}
+
+// queryRows - helper function that processes the rows returned from the database query and
+// unmarshal the JSON data for files.
+func (r adRepo) queryRows(rows pgx.Rows) ([]entities.Ad, error) {
 	defer rows.Close()
 	var ads []entities.Ad
 	for rows.Next() {
@@ -95,7 +95,7 @@ func (r AdRepo) queryRows(rows pgx.Rows) ([]entities.Ad, error) {
 	return ads, nil
 }
 
-func (r AdRepo) queryRow(row pgx.Row) (*entities.Ad, error) {
+func (r adRepo) queryRow(row pgx.Row) (*entities.Ad, error) {
 	var ad entities.Ad
 	var filesJSON []byte
 	err := row.Scan(

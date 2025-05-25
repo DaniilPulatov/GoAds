@@ -6,32 +6,33 @@ import (
 	uuid "github.com/jackc/pgtype/ext/gofrs-uuid"
 )
 
-// Status - represent alowed statuses to be used for ad.
+// Status - represent allowed statuses to be used for ad.
 type Status string
 
 // The only allowed statuses.
 const (
-	StatusDraft    Status = "draft"
+	StatusPending  Status = "pending"
 	StatusApproved Status = "approved"
 	StatusRejected Status = "rejected"
 )
 
-// Ad - represent ad, contains refernce to the user (AuthorID) and reference to the category oo the ad.
+// Ad - represent ad, contains reference to the user (AuthorID) and reference to the category of the ad.
 type Ad struct {
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
-	AuthorID        uuid.UUID
-	Title           string
 	Status          Status
+	Title           string
 	Location        string
 	Description     string
 	RejectionReason string
 	CategoryID      int
 	ID              int
+	AuthorID        uuid.UUID // take less space if it here
 	IsActive        bool
 }
 
-// AdFile - represents file that user will attach to the ad, contains reference to the ad (AdID) and path to the file (URL).
+// AdFile - represents file that user will attach to the ad, contains reference to the ad (AdID)
+// and path to the file (URL).
 type AdFile struct {
 	CreatedAt time.Time
 	FileName  string

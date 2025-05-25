@@ -1,0 +1,71 @@
+version: "2"
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - ineffassign
+    - asasalint
+    - bodyclose
+    - dupl
+    - durationcheck
+    - errname
+    - exptostd
+    - gosec
+    - importas
+    - iface
+    - intrange
+    - lll
+    - musttag
+    - nestif
+    - nilerr
+    - nilnil
+    - noctx
+    - perfsprint
+    - prealloc
+    - reassign
+    - recvcheck
+    - rowserrcheck
+    - sqlclosecheck
+    - thelper
+    - usestdlibvars
+    - wrapcheck
+    - gocritic
+    - nilaway
+  settings:
+    errcheck:
+      check-type-assertions: true
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - performance
+        - style
+    custom:
+      nilaway:
+        type: module
+        description: Static analysis tool to detect potential nil panics in Go code.
+        settings:
+          include-pkgs: ""
+  exclusions:
+    paths: []
+run:
+  timeout: 10m
+  allow-parallel-runners: true
+  go: "1.24"
+  tests: true
+severity:
+  default: error
+  rules:
+    - severity: warning
+      linters:
+        - dupl
+output:
+  formats:
+    text:
+      print-linter-name: true
+      print-issued-lines: true
+      colors: true
+      path: stderr
+  show-stats: true

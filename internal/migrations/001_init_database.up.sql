@@ -1,5 +1,5 @@
 CREATE TYPE role_type AS ENUM ('user', 'admin');
-CREATE TYPE ad_status AS ENUM ('draft', 'approved', 'rejected');
+CREATE TYPE ad_status AS ENUM ('pending', 'approved', 'rejected');
 
 CREATE table users(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -32,14 +32,14 @@ CREATE TABLE ads (
     description TEXT,
     location VARCHAR(100),
     category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
-    status ad_status NOT NULL DEFAULT 'draft',
+    status ad_status NOT NULL DEFAULT 'pending',
     rejection_reason TEXT,
     is_active BOOLEAN NOT NULL DEFAULT false, -- send for moderation to make it true
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CHECK (
         (status = 'rejected' AND rejection_reason IS NOT NULL) OR
-        (status IN ('draft', 'approved') AND rejection_reason IS NULL)
+        (status IN ('pending', 'approved') AND rejection_reason IS NULL)
     )
 );
 
