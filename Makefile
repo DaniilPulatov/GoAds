@@ -1,6 +1,6 @@
 custom-gcl-build:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-	$golangci-lint custom
+	golangci-lint custom
 
 lint: custom-gcl-build
 	bin/custom-gcl run ./...
