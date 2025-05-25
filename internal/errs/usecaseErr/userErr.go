@@ -1,5 +1,7 @@
 package usecaseerr
 
+import "errors"
+
 type Error string
 
 func (e Error) Error() string {
@@ -7,5 +9,7 @@ func (e Error) Error() string {
 }
 
 var (
-	ErrAccessDenied = Error("access denied")
+	ErrAccessDenied   = errors.New("access denied")
+	ErrFileNotAllowed = errors.New("file type not allowed for upload")
+	ErrAdNotFound     = errors.New("ad not found")
 )

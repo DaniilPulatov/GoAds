@@ -7,7 +7,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -20,8 +20,6 @@ type AdRepository interface {
 	Delete(ctx context.Context, id int) error
 	Approve(ctx context.Context, id int, ad *entities.Ad) error
 	Reject(ctx context.Context, id int, ad *entities.Ad) error
-	AddImage(ctx context.Context, file *entities.AdFile) (int, error)
-	DeleteImage(ctx context.Context, file *entities.AdFile) (string, error)
 }
 
 type adRepo struct {
