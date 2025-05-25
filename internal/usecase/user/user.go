@@ -4,7 +4,7 @@ import (
 	"ads-service/internal/domain/entities"
 	repoerr "ads-service/internal/errs/repoErr"
 	usecaseerr "ads-service/internal/errs/usecaseErr"
-	"ads-service/internal/repository/ad"
+	adRepo "ads-service/internal/repository/ad"
 	adfile "ads-service/internal/repository/adFile"
 	"context"
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-const fileDirPerm = 0600 // Permissions for the directory where ad images are stored
+const fileDirPerm = 0o600 // Permissions for the directory where ad images are stored
 
 type UserAdvertisementService interface {
 	CreateDraft(ctx context.Context, userID string, ad *entities.Ad) error
@@ -27,11 +27,11 @@ type UserAdvertisementService interface {
 }
 
 type service struct {
-	repo     ad.AdRepository
+	repo     adRepo.AdRepository
 	fileRepo adfile.AdFileRepository
 }
 
-func NewUserService(repo ad.AdRepository) UserAdvertisementService {
+func NewUserService(repo adRepo.AdRepository) UserAdvertisementService {
 	return &service{
 		repo: repo,
 	}
@@ -61,7 +61,7 @@ func (s *service) AddImageToMyAd(ctx context.Context, userID string, file *entit
 		log.Printf("error getting ads by user ID %s: %v", userID, err)
 		return repoerr.ErrSelection
 	}
-	if ad.AuthorID != userID {
+	if ad != nil && ad.AuthorID != userID {
 		log.Println("error: user does not own the ad")
 		return usecaseerr.ErrAccessDenied
 	}
@@ -97,7 +97,7 @@ func (s *service) DeleteMyAdImage(ctx context.Context, userID string, file *enti
 		log.Printf("error getting ad by ID %d: %v", file.AdID, err)
 		return repoerr.ErrSelection
 	}
-	if ad.AuthorID != userID {
+	if ad != nil && ad.AuthorID != userID {
 		log.Println("error: user does not own the ad")
 		return usecaseerr.ErrAccessDenied
 	}
@@ -122,7 +122,7 @@ func (s *service) GetImagesToMyAd(ctx context.Context, userID string, adID int) 
 		log.Printf("error getting ad by ID %d: %v", adID, err)
 		return nil, repoerr.ErrSelection
 	}
-	if ad.AuthorID != userID {
+	if ad != nil && ad.AuthorID != userID {
 		log.Println("error: user does not own the ad")
 		return nil, usecaseerr.ErrAccessDenied
 	}
