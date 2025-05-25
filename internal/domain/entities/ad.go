@@ -11,9 +11,9 @@ type Status string
 
 // The only allowed statuses.
 const (
-	StatusDraft     Status = "draft"
-	StatusApproved  Status = "approved"
-	StatusRejected  Status = "rejected"
+	StatusDraft    Status = "draft"
+	StatusApproved Status = "approved"
+	StatusRejected Status = "rejected"
 )
 
 // Ad - represent ad, contains refernce to the user (AuthorID) and reference to the category oo the ad.
@@ -22,11 +22,11 @@ type Ad struct {
 	UpdatedAt       time.Time
 	AuthorID        uuid.UUID
 	Title           string
-	Description     string
-	Category        Category
 	Status          Status
-	RejectionReason string
 	Location        string
+	Description     string
+	RejectionReason string
+	CategoryID      int
 	ID              int
 	IsActive        bool
 }
@@ -34,7 +34,25 @@ type Ad struct {
 // AdFile - represents file that user will attach to the ad, contains reference to the ad (AdID) and path to the file (URL).
 type AdFile struct {
 	CreatedAt time.Time
+	FileName  string
 	URL       string
-	ID        int
 	AdID      int
+	ID        int
+}
+
+type AdFilter struct {
+	DateFrom   time.Time
+	DateTo     time.Time
+	Status     string
+	UserID     string
+	CategoryID int
+	Limit      int
+	Page       int
+}
+
+type AdStatistics struct {
+	Total     int
+	Published int
+	Draft     int
+	Rejected  int
 }
