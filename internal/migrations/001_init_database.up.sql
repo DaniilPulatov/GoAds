@@ -33,7 +33,7 @@ CREATE TABLE ads (
     location VARCHAR(100),
     category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
     status ad_status NOT NULL DEFAULT 'pending',
-    rejection_reason TEXT,
+    rejection_reason TEXT DEFAULT NULL,
     is_active BOOLEAN NOT NULL DEFAULT false, -- send for moderation to make it true
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
