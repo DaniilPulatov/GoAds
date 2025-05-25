@@ -1,7 +1,11 @@
 package usecaseerr
 
-import "errors"
+type Error string
+
+func (e Error) Error() string {
+	return string(e)
+}
 
 var (
-	ErrAccessDenied = errors.New("access denied")
+	ErrAccessDenied = Error("access denied")
 )
