@@ -21,14 +21,13 @@ type Ad struct {
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	AuthorID        uuid.UUID
-	Files           []AdFile // files that are attached to the ad
 	Title           string
-	Description     string
 	Status          Status
-	RejectionReason string
 	Location        string
-	ID              int
+	Description     string
+	RejectionReason string
 	CategoryID      int
+	ID              int
 	IsActive        bool
 }
 
@@ -37,6 +36,23 @@ type AdFile struct {
 	CreatedAt time.Time
 	FileName  string
 	URL       string
-	ID        int
 	AdID      int
+	ID        int
+}
+
+type AdFilter struct {
+	DateFrom   time.Time
+	DateTo     time.Time
+	Status     string
+	UserID     string
+	CategoryID int
+	Limit      int
+	Page       int
+}
+
+type AdStatistics struct {
+	Total     int
+	Published int
+	Draft     int
+	Rejected  int
 }
