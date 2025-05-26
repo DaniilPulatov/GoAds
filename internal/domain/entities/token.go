@@ -3,7 +3,7 @@ package entities
 import "time"
 
 type RefreshToken struct {
-	ExpiredAt time.Time
+	ExpiresAt time.Time
 	Token     string
-	UserID    int
+	UserID    string
 }

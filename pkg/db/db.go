@@ -22,7 +22,7 @@ type Pool interface {
 type conn struct {
 	*pgxpool.Pool
 }
-
+/*
 // NewDB creates a new DB instance
 func NewDB(dsn string) (Pool, error) {
 	config, err := pgxpool.ParseConfig(dsn)
@@ -43,7 +43,7 @@ func NewDB(dsn string) (Pool, error) {
 		Pool: pool,
 	}, nil
 }
-
+*/
 func (c *conn) Ping(ctx context.Context) error {
 	if err := c.Pool.Ping(ctx); err != nil {
 		return fmt.Errorf("failed to ping pool: %w", err)
@@ -81,4 +81,22 @@ func (c *conn) Exec(ctx context.Context, sql string, arguments ...interface{}) (
 		return tag, fmt.Errorf("failed to exec: %w", err)
 	}
 	return tag, nil
+}
+
+func NewDB(dsn string) (*pgxpool.Pool, error) {
+	config, err := pgxpool.ParseConfig(dsn)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse dsn: %w", err)
+	}
+
+	pool, err := pgxpool.NewWithConfig(context.Background(), config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create pool: %w", err)
+	}
+
+	if err := pool.Ping(context.Background()); err != nil {
+		return nil, fmt.Errorf("failed to ping pool: %w", err)
+	}
+
+	return pool, nil
 }
