@@ -1,15 +1,8 @@
 package usecaseerr
 
-import "errors"
-
-type Error string
-
-func (e Error) Error() string {
-	return string(e)
-}
-
 var (
-	ErrAccessDenied   = errors.New("access denied")
-	ErrFileNotAllowed = errors.New("file type not allowed for upload")
-	ErrAdNotFound     = errors.New("ad not found")
+	ErrFileNotAllowed = Error("file type not allowed for upload")
+	ErrAdNotFound     = Error("ad not found")
+	ErrGettingUser    = Error("error getting user from database")
+	ErrUserNotFound   = Error("user not found")
 )
