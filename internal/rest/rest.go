@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"ads-service/internal/rest/handlers/auth"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,7 +30,23 @@ func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (s *Server) Init() {
-	authGroup := s.mux.Group("/auth")
-	authGroup.POST("/register", s.authHandler.Register)
-	authGroup.POST("/login", s.authHandler.Login)
+	baseGroup := s.mux.Group("/ads/api/v1")
+	{
+		authGroup := baseGroup.Group("/auth")
+		{
+			authGroup.POST("/register", s.authHandler.Register)
+			authGroup.POST("/login", s.authHandler.Login)
+		}
+		/*
+			userGroup := baseGroup.Group("/user")
+			{
+
+			}
+			adminGroup := baseGroup.Group("/admin")
+			{
+
+			}
+		*/
+	}
+
 }

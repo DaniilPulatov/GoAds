@@ -1,6 +1,6 @@
-CREATE TYPE IF NOT EXISTS role_type AS ENUM ('user', 'admin');
-CREATE TYPE IF NOT EXISTS ad_status AS ENUM ('pending', 'approved', 'rejected');
- CREATE EXTENSION IF NOT EXISTS "uuid-ossp"
+CREATE TYPE role_type AS ENUM ('user', 'admin');
+CREATE TYPE ad_status AS ENUM ('pending', 'approved', 'rejected');
+CREATE EXTENSION "uuid-ossp";
 
 CREATE table IF NOT EXISTS users(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

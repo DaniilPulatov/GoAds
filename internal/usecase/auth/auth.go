@@ -16,8 +16,8 @@ import (
 // TODO: Move to config or env variable
 
 const (
-	refershTokenDuration = 60 * 60 * 24 * 7 // Refersh Token 7 days duration in minutes
-	accessTokenDuration  = 60 * 15          // Access Token15 min duration in minutes
+	refershTokenDuration = 10_080  // Refersh Token 7 days duration in minutes
+	accessTokenDuration  = 60 * 15 // Access Token15 min duration in minutes
 	minPswdLenfth        = 8
 ) // Token duration in minutes
 
@@ -91,6 +91,15 @@ func (s *authService) Login(ctx context.Context, phone, password string) (string
 		log.Println("Error generating access token:", err)
 		return "", "", usecaserr.ErrTokenGeneration
 	}
+
+	if err := s.authRepo.CreateToken(ctx, entities.RefreshToken{
+		UserID:    user.ID,
+		Token:     RToken,
+		ExpiresAt: time.Now().Local().Add(refershTokenDuration * time.Minute),
+	}); err != nil {
+		log.Println("Error creating refresh token in repository:", err)
+		return "", "", usecaserr.ErrTokenGeneration
+	}
 	return RToken, accessToken, nil
 }
 
@@ -124,7 +133,7 @@ func (s *authService) Refresh(ctx context.Context, refreshToken string) (string,
 	err = s.authRepo.CreateToken(ctx, entities.RefreshToken{
 		UserID:    claims.UserID,
 		Token:     newRefreshToken,
-		ExpiresAt: time.Now().Local().Add(refershTokenDuration * time.Minute),
+		ExpiresAt: time.Now().Local().Add(refershTokenDuration * time.Second),
 	})
 	if err != nil {
 		log.Println(err)

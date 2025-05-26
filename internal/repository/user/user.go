@@ -30,10 +30,11 @@ func NewUserRepo(db *pgxpool.Pool) UserRepository {
 }
 
 func (r *userRepo) Create(ctx context.Context, user entities.User) error {
-	insertQuery := `INSERT INTO users (first_name, last_name, phone, role, password_hash) VALUES ($1, $2, $3, $4, $5)`
-	_, err := r.db.Exec(ctx, insertQuery, user.ID, user.FName, user.LName, user.Phone, user.Role, user.PasswordHash)
+	insertQuery := `INSERT INTO users (first_name, last_name, phone, password_hash) VALUES ($1, $2, $3, $4)`
+	_, err := r.db.Exec(ctx, insertQuery, user.FName, user.LName, user.Phone, user.PasswordHash)
 	if err != nil {
-		return pgx.ErrNoRows
+		log.Println("Error creating user:", err)
+		return repoerr.ErrUserInsertFailed
 	}
 	return nil
 }

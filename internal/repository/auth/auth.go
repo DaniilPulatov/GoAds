@@ -28,6 +28,11 @@ func NewAuthRepo(db *pgxpool.Pool) AuthRepository {
 }
 
 func (r *authRepo) CreateToken(ctx context.Context, rtoken entities.RefreshToken) error {
+	if err := r.DeleteToken(ctx, rtoken.UserID); err != nil {
+		log.Println("Error deleting existing token for user:", rtoken.UserID, "Error:", err)
+		return repoerr.ErrTokenDeleteFailed
+	}
+
 	insertQuery := `INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)`
 	_, err := r.db.Exec(ctx, insertQuery, rtoken.UserID, rtoken.Token, rtoken.ExpiresAt)
 	if err != nil {

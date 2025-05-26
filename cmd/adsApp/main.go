@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ads-service/internal/migrations"
 	authRepository "ads-service/internal/repository/auth"
 	userRepository "ads-service/internal/repository/user"
 	authHandler "ads-service/internal/rest/handlers/auth"
@@ -25,6 +26,11 @@ func main() {
 		host = "0.0.0.0"
 		dsn  = "postgres://user:1234@localhost:5432/adsDB?sslmode=disable"
 	)
+
+	if err := migrations.New("file://internal/migrations", dsn); err != nil {
+		log.Println("Error running migrations:", err)
+		return
+	}
 
 	if err := execute(host, port, dsn); err != nil {
 		log.Println(err)

@@ -18,7 +18,7 @@ func New(fileDir, dsn string) error {
 		return fmt.Errorf("new migration: %w", err)
 	}
 
-	if err := migration.Up(); err != nil && errors.Is(err, migrate.ErrNoChange) {
+	if err := migration.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		log.Println("Error up new migration:", err)
 		return fmt.Errorf("up migration: %w", err)
 	}
