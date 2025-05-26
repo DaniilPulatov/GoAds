@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Pool interface {
@@ -24,8 +24,30 @@ type conn struct {
 	*pgxpool.Pool
 }
 
+// v1
+func NewDB(dsn string) (*pgxpool.Pool, error) {
+	config, err := pgxpool.ParseConfig(dsn)
+	if err != nil {
+		log.Println("Failed to database:", err)
+		return nil, fmt.Errorf("failed to parse dsn: %w", err)
+	}
+
+	pool, err := pgxpool.NewWithConfig(context.Background(), config)
+	if err != nil {
+		log.Println("Failed to database:", err)
+		return nil, fmt.Errorf("failed to create pool: %w", err)
+	}
+
+	if err := pool.Ping(context.Background()); err != nil {
+		log.Println("Failed to database:", err)
+		return nil, fmt.Errorf("failed to ping pool: %w", err)
+	}
+	log.Println("Database connection established successfully")
+	return pool, nil
+}
+
 /*
-// NewDB creates a new DB instance
+// NewDB creates a new DB instance v2
 
 	func NewDB(dsn string) (Pool, error) {
 		config, err := pgxpool.ParseConfig(dsn)
@@ -84,26 +106,4 @@ func (c *conn) Exec(ctx context.Context, sql string, arguments ...interface{}) (
 		return tag, fmt.Errorf("failed to exec: %w", err)
 	}
 	return tag, nil
-}
-
-
-func NewDB(dsn string) (*pgxpool.Pool, error) {
-	config, err := pgxpool.ParseConfig(dsn)
-	if err != nil {
-		log.Println("Failed to database:", err)
-		return nil, fmt.Errorf("failed to parse dsn: %w", err)
-	}
-
-	pool, err := pgxpool.NewWithConfig(context.Background(), config)
-	if err != nil {
-		log.Println("Failed to database:", err)
-		return nil, fmt.Errorf("failed to create pool: %w", err)
-	}
-
-	if err := pool.Ping(context.Background()); err != nil {
-		log.Println("Failed to database:", err)
-		return nil, fmt.Errorf("failed to ping pool: %w", err)
-	}
-	log.Println("Database connection established successfully")
-	return pool, nil
 }

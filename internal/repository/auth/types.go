@@ -4,7 +4,7 @@ import (
 	"ads-service/internal/domain/entities"
 	"context"
 
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type AuthRepository interface {
