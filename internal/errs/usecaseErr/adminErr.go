@@ -1,0 +1,21 @@
+package usecaseerr
+
+var (
+	ErrAccessDenied           = Error("access denied")
+	ErrGettingAllAds          = Error("error getting all ads from database")
+	ErrGettingAdByID          = Error("error getting ad by ID from database")
+	ErrGettingAdsByUserID     = Error("error getting ads by user ID from database")
+	ErrGettingAdsByCategoryID = Error("error getting ads by category ID from database")
+	ErrGettingAdsByStatus     = Error("error getting ads by status from database")
+	ErrGettingAdsByDate       = Error("error getting ads by date from database")
+	ErrGettingAdsByTitle      = Error("error getting ads by title from database")
+	ErrGettingAdsByLocation   = Error("error getting ads by location from database")
+	ErrScan                   = Error("error scanning ad from database")
+	ErrFileSelection          = Error("error selecting ad files from database")
+	ErrFileInsertion          = Error("error inserting ad file into database")
+	ErrFileDeletion           = Error("error deleting ad file from database")
+	ErrFileNotFound           = Error("ad file not found in database")
+	ErrJSONUnmarshal          = Error("error unmarshalling JSON data from database")
+	ErrNoAds                  = Error("no ads found")
+	ErrDeletingAd             = Error("error deleting ad from database")
+)

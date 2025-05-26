@@ -2,7 +2,6 @@ package repoerr
 
 var (
 	ErrUserExists         = Error("user already exists")
-	ErrUserNotFound       = Error("user not found")
 	ErrInvalidCredentials = Error("invalid credentials")
 	ErrUserSelectFailed   = Error("failed to select user")
 	ErrUserInsertFailed   = Error("failed to insert user")

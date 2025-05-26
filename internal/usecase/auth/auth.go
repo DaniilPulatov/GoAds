@@ -49,7 +49,7 @@ func (s *authService) Register(ctx context.Context, user entities.User) error {
 	user.PasswordHash = string(hash)
 	user.Password = "" // Clear the password field after hashing
 
-	err = s.userRepo.Create(ctx, user)
+	_, err = s.userRepo.CreateUser(ctx, &user)
 	if err != nil {
 		log.Println("Error creating user:", err)
 		return repoerr.ErrUserInsertFailed

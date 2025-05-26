@@ -15,7 +15,7 @@ type AdRepository interface {
 	Create(ctx context.Context, ad *entities.Ad) error
 	GetByID(ctx context.Context, id int) (*entities.Ad, error)
 	GetByUserID(ctx context.Context, userID string) ([]entities.Ad, error)
-	GetAll(ctx context.Context, filter *entities.AdFilter) ([]entities.Ad, error)
+	GetAll(ctx context.Context) ([]entities.Ad, error)
 	Update(ctx context.Context, ad *entities.Ad) error
 	Delete(ctx context.Context, id int) error
 	Approve(ctx context.Context, id int, ad *entities.Ad) error
@@ -30,16 +30,14 @@ func NewAdRepo(db *pgxpool.Pool) AdRepository {
 	return &adRepo{db: db}
 }
 
-func (r adRepo) GetAll(ctx context.Context, filter *entities.AdFilter) ([]entities.Ad, error) {
+func (r adRepo) GetAll(ctx context.Context) ([]entities.Ad, error) {
 	rows, err := r.db.Query(ctx, `
-		SELECT id, author_id, title, description, category_id, 
-		status, is_active, created_at, updated_at, location
+		SELECT
+		    id, author_id, title, description, category_id, 
+			status, is_active, created_at, updated_at, location
 		FROM ads
 	`)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, repoerr.ErrNoRows
-		}
 		log.Println("Error getting ads:", err)
 		return nil, repoerr.ErrGettingAllAds
 	}
@@ -57,13 +55,19 @@ func (r adRepo) GetAll(ctx context.Context, filter *entities.AdFilter) ([]entiti
 		ads = append(ads, ad)
 	}
 
+	if err = rows.Err(); err != nil {
+		log.Println("Error iterating rows:", err)
+		return nil, repoerr.ErrScan
+	}
+
 	return ads, nil
 }
 
 func (r adRepo) GetByID(ctx context.Context, id int) (*entities.Ad, error) {
 	var ad entities.Ad
 	err := r.db.QueryRow(ctx, `
-		SELECT id, author_id, title, description, category_id, 
+		SELECT 
+		    id, author_id, title, description, category_id, 
 			status, is_active, created_at, updated_at, location
 		FROM ads
 		WHERE id = $1`, id).
@@ -83,15 +87,12 @@ func (r adRepo) GetByID(ctx context.Context, id int) (*entities.Ad, error) {
 
 func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, error) {
 	rows, err := r.db.Query(ctx, `
-		SELECT id, author_id, title, description, category_id, 
-		status, is_active, created_at, updated_at, location
+		SELECT 
+		    id, author_id, title, description, category_id, 
+			status, is_active, created_at, updated_at, location
 		FROM ads
 		WHERE author_id = $1`, userID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			log.Println("No ads found for user with ID:", userID)
-			return nil, repoerr.ErrUserNotHaveAds
-		}
 		log.Println("Error getting user ads:", err)
 		return nil, repoerr.ErrGettingAdsByUserID
 	}
@@ -109,14 +110,22 @@ func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, 
 		ads = append(ads, ad)
 	}
 
+	if err = rows.Err(); err != nil {
+		log.Println("Error iterating rows:", err)
+		return nil, repoerr.ErrScan
+	}
+
 	return ads, nil
 }
 
 func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
 	_, err := r.db.Exec(ctx, `
-		INSERT INTO ads(author_id, title, description, location, category_id)
-		VALUES($1, $2, $3, $4, $5);`,
-		ad.AuthorID, ad.Title, ad.Description, ad.Location, ad.CategoryID)
+        INSERT INTO ads(
+            author_id, title, description, location, category_id, 
+            status, is_active, created_at, updated_at
+        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
+		ad.AuthorID, ad.Title, ad.Description, ad.Location, ad.CategoryID,
+		ad.Status, ad.IsActive, ad.CreatedAt, ad.UpdatedAt)
 	if err != nil {
 		log.Println("while inserting into ads:", err)
 		return repoerr.ErrInsert
@@ -126,7 +135,7 @@ func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
 }
 
 func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
-	res, err := r.db.Exec(ctx, `
+	row, err := r.db.Exec(ctx, `
 		UPDATE ads
 		SET title = $1, description = $2, location = $3, category_id = $4,
 			status = $5, is_active = $6, updated_at = $7
@@ -137,7 +146,7 @@ func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
 		return repoerr.ErrUpdate
 	}
 
-	if res.RowsAffected() == 0 {
+	if row.RowsAffected() == 0 {
 		log.Println("No ad found with ID:", ad.ID)
 		return repoerr.ErrAdNotFound
 	}
@@ -146,12 +155,16 @@ func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
 }
 
 func (r adRepo) Delete(ctx context.Context, id int) error {
-	_, err := r.db.Exec(ctx, `
+	row, err := r.db.Exec(ctx, `
 		DELETE FROM ads
 		WHERE id = $1;`, id)
 	if err != nil {
 		log.Println("Error deleting ad:", err)
 		return repoerr.ErrDelete
+	}
+	if row.RowsAffected() == 0 {
+		log.Println("No ad found with ID:", id)
+		return repoerr.ErrAdNotFound
 	}
 
 	return nil

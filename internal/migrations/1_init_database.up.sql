@@ -2,7 +2,7 @@ CREATE TYPE role_type AS ENUM ('user', 'admin');
 CREATE TYPE ad_status AS ENUM ('pending', 'approved', 'rejected');
 CREATE EXTENSION "uuid-ossp";
 
-CREATE table IF NOT EXISTS users(
+CREATE table users(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     first_name VARCHAR(150),
     last_name VARCHAR(150),
@@ -13,7 +13,7 @@ CREATE table IF NOT EXISTS users(
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE table IF NOT EXISTS refresh_tokens(
+CREATE TABLE refresh_tokens(
     user_id UUID REFERENCES users(id),
     token TEXT UNIQUE,
     expires_at TIMESTAMP NOT NULL
