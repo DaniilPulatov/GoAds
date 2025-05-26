@@ -123,8 +123,7 @@ func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
         INSERT INTO ads(
             author_id, title, description, location, category_id, 
             status, is_active, created_at, updated_at
-        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        RETURNING id;`,
+        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
 		ad.AuthorID, ad.Title, ad.Description, ad.Location, ad.CategoryID,
 		ad.Status, ad.IsActive, ad.CreatedAt, ad.UpdatedAt)
 	if err != nil {
