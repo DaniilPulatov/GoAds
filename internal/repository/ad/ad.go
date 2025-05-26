@@ -119,15 +119,13 @@ func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, 
 }
 
 func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
-	err := r.db.QueryRow(ctx, `
+	_, err := r.db.Exec(ctx, `
         INSERT INTO ads(
             author_id, title, description, location, category_id, 
             status, is_active, created_at, updated_at
-        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        RETURNING id;`,
+        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
 		ad.AuthorID, ad.Title, ad.Description, ad.Location, ad.CategoryID,
-		ad.Status, ad.IsActive, ad.CreatedAt, ad.UpdatedAt).
-		Scan(&ad.ID)
+		ad.Status, ad.IsActive, ad.CreatedAt, ad.UpdatedAt)
 	if err != nil {
 		log.Println("while inserting into ads:", err)
 		return repoerr.ErrInsert
