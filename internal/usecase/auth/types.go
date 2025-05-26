@@ -11,6 +11,7 @@ type AuthService interface {
 	Register(ctx context.Context, user *entities.User) error
 	Login(ctx context.Context, phone, password string) (string, string, error)
 	Refresh(ctx context.Context, refreshToken string) (string, string, error)
+	IsAdmin(ctx context.Context, userID string) (bool, error)
 }
 
 type userAuthService struct {

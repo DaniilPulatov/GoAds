@@ -10,6 +10,7 @@ import (
 	authService "ads-service/internal/usecase/auth"
 	adminService "ads-service/internal/usecase/admin"
 	userService "ads-service/internal/usecase/user"
+	mv "ads-service/internal/rest/middleware"
 
 
 	"ads-service/internal/rest"
@@ -61,6 +62,8 @@ func execute(host, port, dsn string) error {
 		userRepository.NewUserRepo,
 		adFileRepository.NewAdFileRepo,
 		adRepository.NewAdRepo,
+
+		mv.NewMiddleware,
 
 		http.NewServeMux,
 		rest.NewServer,

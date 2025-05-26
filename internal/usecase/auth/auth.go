@@ -3,6 +3,7 @@ package auth
 import (
 	"ads-service/internal/domain/entities"
 	repoerr "ads-service/internal/errs/repoErr"
+	usecaseerr "ads-service/internal/errs/usecaseErr"
 	usecaserr "ads-service/internal/errs/usecaseErr"
 	"ads-service/pkg/utils"
 	"context"
@@ -140,4 +141,16 @@ func (s *userAuthService) Refresh(ctx context.Context, refreshToken string) (new
 		return "", "", usecaserr.ErrTokenGeneration
 	}
 	return newAccessToken, newRefreshToken, nil
+}
+
+func (s *userAuthService) IsAdmin(ctx context.Context, userID string) (bool, error) {
+	userByID, err := s.userRepo.GetUserByID(ctx, userID)
+	if err != nil {
+		return false, usecaseerr.ErrGettingUser
+	}
+	if userByID == nil {
+		return false, usecaseerr.ErrUserNotFound
+	}
+
+	return userByID.Role == entities.RoleAdmin, nil
 }
