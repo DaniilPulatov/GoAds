@@ -7,19 +7,19 @@ import (
 	"context"
 )
 
-type UserAuthService interface {
-	Register(ctx context.Context, user entities.User) error
+type AuthService interface {
+	Register(ctx context.Context, user *entities.User) error
 	Login(ctx context.Context, phone, password string) (string, string, error)
 	Refresh(ctx context.Context, refreshToken string) (string, string, error)
 }
 
-type authService struct {
+type userAuthService struct {
 	userRepo user.UserRepository
 	authRepo auth.AuthRepository
 }
 
-func NewAuthService(userRepo user.UserRepository, authRepo auth.AuthRepository) UserAuthService {
-	return &authService{
+func NewAuthService(userRepo user.UserRepository, authRepo auth.AuthRepository) AuthService {
+	return &userAuthService{
 		userRepo: userRepo,
 		authRepo: authRepo,
 	}

@@ -11,11 +11,10 @@ import (
 type Server struct {
 	mux         *gin.Engine
 	authHandler *auth.AuthHandler
-	//mv          *auth.Midlleware
+	// mv          *auth.Midlleware
 }
 
-func NewServer(mux *gin.Engine,
-	authHandler *auth.AuthHandler) *Server {
+func NewServer(mux *gin.Engine, authHandler *auth.AuthHandler) *Server {
 	mux.Use(gin.Recovery())
 	mux.Use(gin.Logger())
 
@@ -37,16 +36,6 @@ func (s *Server) Init() {
 			authGroup.POST("/register", s.authHandler.Register)
 			authGroup.POST("/login", s.authHandler.Login)
 		}
-		/*
-			userGroup := baseGroup.Group("/user")
-			{
-
-			}
-			adminGroup := baseGroup.Group("/admin")
-			{
-
-			}
-		*/
 	}
 
 }

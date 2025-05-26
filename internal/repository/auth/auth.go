@@ -8,24 +8,7 @@ import (
 	"log"
 
 	"github.com/jackc/pgx"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-type AuthRepository interface {
-	CreateToken(ctx context.Context, rtoken entities.RefreshToken) error
-	GetToken(ctx context.Context, token string) (*entities.RefreshToken, error)
-	UpdateToken(ctx context.Context, rtoken entities.RefreshToken) error
-	DeleteToken(ctx context.Context, token string) error
-	CleanUp(ctx context.Context) error
-}
-
-type authRepo struct {
-	db *pgxpool.Pool
-}
-
-func NewAuthRepo(db *pgxpool.Pool) AuthRepository {
-	return &authRepo{db: db}
-}
 
 func (r *authRepo) CreateToken(ctx context.Context, rtoken entities.RefreshToken) error {
 	if err := r.DeleteToken(ctx, rtoken.UserID); err != nil {
@@ -54,7 +37,7 @@ func (r *authRepo) GetToken(ctx context.Context, userID string) (*entities.Refre
 		log.Println("Error selecting token:", err)
 		return nil, repoerr.ErrTokenSelectFailed
 	}
-	return nil, nil
+	return &token, nil
 }
 func (r *authRepo) UpdateToken(ctx context.Context, rtoken entities.RefreshToken) error {
 	updateQuery := `UPDATE refresh_tokens SET token = $1, expires_at = $2 WHERE user_id = $3`

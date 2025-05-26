@@ -8,39 +8,9 @@ import (
 	"log"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type UserRepository interface {
-	CreateUser(ctx context.Context, user *entities.User) (string, error) // return id and error
-	GetUserByID(ctx context.Context, userID string) (*entities.User, error)
-	GetAllUser(ctx context.Context) ([]entities.User, error)
-	GetByPhone(ctx context.Context, phone string) (*entities.User, error)
-	UpdateUser(ctx context.Context, user *entities.User) error
-	DeleteUser(ctx context.Context, userID string) error
-	IsExists(ctx context.Context, phone string) (bool, error)
-}
-
-type userRepo struct {
-	db *pgxpool.Pool
-}
-
-func NewUserRepo(db *pgxpool.Pool) UserRepository {
-	return &userRepo{db: db}
-}
-/*
-func (r *userRepo) Create(ctx context.Context, user entities.User) error {
-	insertQuery := `INSERT INTO users (first_name, last_name, phone, password_hash) VALUES ($1, $2, $3, $4)`
-	_, err := r.db.Exec(ctx, insertQuery, user.FName, user.LName, user.Phone, user.PasswordHash)
-	if err != nil {
-		log.Println("Error creating user:", err)
-		return repoerr.ErrUserInsertFailed
-	}
-	return nil
-}
-	*/
-
-func (r userRepo) CreateUser(ctx context.Context, user *entities.User) (string, error) {
+func (r *userRepo) CreateUser(ctx context.Context, user *entities.User) (string, error) {
 	err := r.db.QueryRow(ctx, `
 		INSERT INTO users(
 				first_name, last_name, phone, 
@@ -63,10 +33,11 @@ func (r *userRepo) GetByPhone(ctx context.Context, phone string) (*entities.User
 	var user entities.User
 	err := row.Scan(&user.ID, &user.FName, &user.LName, &user.Phone, &user.Role, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
+		log.Println("Error selecting user by phone:", err)
 		if err == pgx.ErrNoRows {
 			return nil, pgx.ErrNoRows
 		}
-		return nil, err
+		return nil, repoerr.ErrScan
 	}
 	return &user, nil
 }
@@ -83,27 +54,7 @@ func (r *userRepo) IsExists(ctx context.Context, phone string) (bool, error) {
 	return count > 0, nil
 }
 
-
-func (r userRepo) GetUserByID(ctx context.Context, userID string) (*entities.User, error) {
-	var user entities.User
-	err := r.db.QueryRow(ctx, `
-		SELECT id, first_name, last_name, phone, role
-		FROM users
-		WHERE id = $1`, userID).
-		Scan(&user.ID, &user.FName, &user.LName, &user.Phone, &user.Role)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			log.Println("No user found with ID:", userID)
-			return nil, repoerr.ErrUserNotFound
-		}
-		log.Println("Error selecting user:", err)
-		return nil, repoerr.ErrSelection
-	}
-
-	return &user, nil
-}
-
-func (r userRepo) GetAllUser(ctx context.Context) ([]entities.User, error) {
+func (r *userRepo) GetAllUser(ctx context.Context) ([]entities.User, error) {
 	rows, err := r.db.Query(ctx, `
 		SELECT id, first_name, last_name, phone, role
 		FROM users`)
@@ -132,7 +83,26 @@ func (r userRepo) GetAllUser(ctx context.Context) ([]entities.User, error) {
 	return users, nil
 }
 
-func (r userRepo) UpdateUser(ctx context.Context, user *entities.User) error {
+func (r *userRepo) GetUserByID(ctx context.Context, userID string) (*entities.User, error) {
+	var user entities.User
+	err := r.db.QueryRow(ctx, `
+		SELECT id, first_name, last_name, phone, role
+		FROM users
+		WHERE id = $1`, userID).
+		Scan(&user.ID, &user.FName, &user.LName, &user.Phone, &user.Role)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			log.Println("No user found with ID:", userID)
+			return nil, repoerr.ErrUserNotFound
+		}
+		log.Println("Error selecting user:", err)
+		return nil, repoerr.ErrSelection
+	}
+
+	return &user, nil
+}
+
+func (r *userRepo) UpdateUser(ctx context.Context, user *entities.User) error {
 	_, err := r.db.Exec(ctx, `
 		UPDATE users
 		SET first_name = $1, last_name = $2, phone = $3, role = $4
@@ -146,7 +116,7 @@ func (r userRepo) UpdateUser(ctx context.Context, user *entities.User) error {
 	return nil
 }
 
-func (r userRepo) DeleteUser(ctx context.Context, userID string) error {
+func (r *userRepo) DeleteUser(ctx context.Context, userID string) error {
 	result, err := r.db.Exec(ctx, `
 		DELETE FROM users
 		WHERE id = $1;`, userID)

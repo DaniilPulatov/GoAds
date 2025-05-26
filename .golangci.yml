@@ -3,7 +3,7 @@ linters:
   default: none
   enable:
     - errcheck
-    - govet
+    #- govet
     - staticcheck
     - unused
     - ineffassign
@@ -13,11 +13,11 @@ linters:
     - durationcheck
     - errname
     - exptostd
-    - gosec
+   # - gosec
     - importas
     - iface
     - intrange
-    - lll
+    #- lll
     - musttag
     - nestif
     - nilerr

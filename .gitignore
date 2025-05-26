@@ -30,3 +30,4 @@ vendor/
 .idea
 .vscode
 ./*.sql
+data

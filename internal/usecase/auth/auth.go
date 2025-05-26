@@ -21,7 +21,7 @@ const (
 	minPswdLenfth        = 8
 ) // Token duration in minutes
 
-func (s *authService) Register(ctx context.Context, user entities.User) error {
+func (s *userAuthService) Register(ctx context.Context, user *entities.User) error {
 	if user.Password == "" || user.Phone == "" {
 		log.Println("HERE!!!!")
 		return usecaserr.ErrInvalidUserData
@@ -49,7 +49,7 @@ func (s *authService) Register(ctx context.Context, user entities.User) error {
 	user.PasswordHash = string(hash)
 	user.Password = "" // Clear the password field after hashing
 
-	_, err = s.userRepo.CreateUser(ctx, &user)
+	_, err = s.userRepo.CreateUser(ctx, user)
 	if err != nil {
 		log.Println("Error creating user:", err)
 		return repoerr.ErrUserInsertFailed
@@ -59,7 +59,7 @@ func (s *authService) Register(ctx context.Context, user entities.User) error {
 	return nil
 }
 
-func (s *authService) Login(ctx context.Context, phone, password string) (string, string, error) {
+func (s *userAuthService) Login(ctx context.Context, phone, password string) (RToken string, accessToken string, err error) {
 	if phone == "" || password == "" {
 		return "", "", usecaserr.ErrInvalidUserData
 	}
@@ -81,12 +81,12 @@ func (s *authService) Login(ctx context.Context, phone, password string) (string
 		return "", "", usecaserr.ErrInvalidUserData
 	}
 
-	RToken, err := utils.GenerateToken(user.ID, refershTokenDuration)
+	RToken, err = utils.GenerateToken(user.ID, refershTokenDuration)
 	if err != nil {
 		log.Println("Error generating refresh token:", err)
 		return "", "", usecaserr.ErrTokenGeneration
 	}
-	accessToken, err := utils.GenerateToken(user.ID, accessTokenDuration)
+	accessToken, err = utils.GenerateToken(user.ID, accessTokenDuration)
 	if err != nil {
 		log.Println("Error generating access token:", err)
 		return "", "", usecaserr.ErrTokenGeneration
@@ -103,7 +103,7 @@ func (s *authService) Login(ctx context.Context, phone, password string) (string
 	return RToken, accessToken, nil
 }
 
-func (s *authService) Refresh(ctx context.Context, refreshToken string) (string, string, error) {
+func (s *userAuthService) Refresh(ctx context.Context, refreshToken string) (newAccessToken, newRefreshToken string, err error) {
 	claims := &utils.CustomClaims{}
 	token, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
 		return utils.SecretKey, nil
@@ -120,12 +120,12 @@ func (s *authService) Refresh(ctx context.Context, refreshToken string) (string,
 		log.Println("err while deleting refresh token: ", err)
 		return "", "", usecaserr.ErrInvalidToken
 	}
-	newAccessToken, err := utils.GenerateToken(claims.UserID, accessTokenDuration)
+	newAccessToken, err = utils.GenerateToken(claims.UserID, accessTokenDuration)
 	if err != nil {
 		log.Println(err)
 		return "", "", usecaserr.ErrTokenGeneration
 	}
-	newRefreshToken, err := utils.GenerateToken(claims.UserID, refershTokenDuration)
+	newRefreshToken, err = utils.GenerateToken(claims.UserID, refershTokenDuration)
 	if err != nil {
 		log.Println(err)
 		return "", "", usecaserr.ErrTokenGeneration
