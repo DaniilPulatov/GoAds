@@ -2,15 +2,15 @@ package main
 
 import (
 	"ads-service/internal/migrations"
-	authRepository "ads-service/internal/repository/auth"
 	adRepository "ads-service/internal/repository/ad"
 	adFileRepository "ads-service/internal/repository/adFile"
+	authRepository "ads-service/internal/repository/auth"
 	userRepository "ads-service/internal/repository/user"
 	authHandler "ads-service/internal/rest/handlers/auth"
-	authService "ads-service/internal/usecase/auth"
 	adminService "ads-service/internal/usecase/admin"
+	authService "ads-service/internal/usecase/auth"
 	userService "ads-service/internal/usecase/user"
-
+	"time"
 
 	"ads-service/internal/rest"
 	"ads-service/pkg/db"
@@ -56,7 +56,7 @@ func execute(host, port, dsn string) error {
 		authService.NewAuthService,
 		adminService.NewAdminService,
 		userService.NewUserService,
-		
+
 		authRepository.NewAuthRepo,
 		userRepository.NewUserRepo,
 		adFileRepository.NewAdFileRepo,
@@ -66,8 +66,9 @@ func execute(host, port, dsn string) error {
 		rest.NewServer,
 		func(server *rest.Server) *http.Server {
 			return &http.Server{
-				Addr:    net.JoinHostPort(host, port),
-				Handler: server,
+				Addr:              net.JoinHostPort(host, port),
+				Handler:           server,
+				ReadHeaderTimeout: 5 * time.Second,
 			}
 		},
 	}

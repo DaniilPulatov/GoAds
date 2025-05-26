@@ -15,7 +15,7 @@ type CustomClaims struct {
 }
 
 // Put it into env variable or config file in production
-var SecretKey = []byte("your_secret_key") // Replace with your actual secret key
+var SecretKey = []byte("your_secret_key") // Replace it with your actual secret key
 
 func GenerateToken(userID string, duration int) (string, error) {
 	expAt := time.Duration(duration) * time.Minute

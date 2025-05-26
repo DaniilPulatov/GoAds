@@ -18,7 +18,8 @@ type User struct {
 	FName        string    `json:"first_name"`
 	LName        string    `json:"last_name"`
 	PasswordHash string    `json:"password_hash" `
-	Password     string    `json:"password" binding:"required"` // temp field for registration, will be removed after rhashing password
-	Phone        string    `json:"phone" binding:"required`
-	ID           string    `json:"id"`
+	Password     string    `json:"password" binding:"required"` // temp field for registration
+	// will be removed after rehashing the password
+	Phone string `json:"phone" binding:"required"`
+	ID    string `json:"id"`
 }

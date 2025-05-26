@@ -52,6 +52,6 @@ type AdFilter struct {
 type AdStatistics struct {
 	Total     int
 	Published int
-	Draft     int
+	Pending   int
 	Rejected  int
 }

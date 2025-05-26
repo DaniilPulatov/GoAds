@@ -2,8 +2,8 @@ package auth
 
 import (
 	"ads-service/internal/domain/entities"
-	repoerr "ads-service/internal/errs/repoErr"
-	usecaserr "ads-service/internal/errs/usecaseErr"
+	repoerr "ads-service/internal/errs/repoerr"
+	usecaserr "ads-service/internal/errs/usecaseerr"
 	"ads-service/pkg/utils"
 	"context"
 	"log"
@@ -59,7 +59,7 @@ func (s *userAuthService) Register(ctx context.Context, user *entities.User) err
 	return nil
 }
 
-func (s *userAuthService) Login(ctx context.Context, phone, password string) (RToken string, accessToken string, err error) {
+func (s *userAuthService) Login(ctx context.Context, phone, password string) (rToken string, accessToken string, err error) {
 	if phone == "" || password == "" {
 		return "", "", usecaserr.ErrInvalidUserData
 	}
@@ -81,7 +81,7 @@ func (s *userAuthService) Login(ctx context.Context, phone, password string) (RT
 		return "", "", usecaserr.ErrInvalidUserData
 	}
 
-	RToken, err = utils.GenerateToken(user.ID, refershTokenDuration)
+	rToken, err = utils.GenerateToken(user.ID, refershTokenDuration)
 	if err != nil {
 		log.Println("Error generating refresh token:", err)
 		return "", "", usecaserr.ErrTokenGeneration
@@ -92,18 +92,22 @@ func (s *userAuthService) Login(ctx context.Context, phone, password string) (RT
 		return "", "", usecaserr.ErrTokenGeneration
 	}
 
-	if err := s.authRepo.CreateToken(ctx, entities.RefreshToken{
+	if err = s.authRepo.CreateToken(ctx, entities.RefreshToken{
 		UserID:    user.ID,
-		Token:     RToken,
+		Token:     rToken,
 		ExpiresAt: time.Now().Local().Add(refershTokenDuration * time.Minute),
 	}); err != nil {
 		log.Println("Error creating refresh token in repository:", err)
 		return "", "", usecaserr.ErrTokenGeneration
 	}
-	return RToken, accessToken, nil
+	return rToken, accessToken, nil
 }
 
-func (s *userAuthService) Refresh(ctx context.Context, refreshToken string) (newAccessToken, newRefreshToken string, err error) {
+func (s *userAuthService) Refresh(
+	ctx context.Context,
+	refreshToken string,
+) (newAccessToken, newRefreshToken string, err error) {
+
 	claims := &utils.CustomClaims{}
 	token, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
 		return utils.SecretKey, nil
