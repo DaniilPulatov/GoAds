@@ -2,9 +2,8 @@ package ad
 
 import (
 	"ads-service/internal/domain/entities"
+	"ads-service/pkg/db"
 	"context"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type AdRepository interface {
@@ -20,9 +19,9 @@ type AdRepository interface {
 }
 
 type adRepo struct {
-	db *pgxpool.Pool
+	db db.Pool
 }
 
-func NewAdRepo(db *pgxpool.Pool) AdRepository {
-	return &adRepo{db: db}
+func NewAdRepo(pool db.Pool) AdRepository {
+	return &adRepo{db: pool}
 }

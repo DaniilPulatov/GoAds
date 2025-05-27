@@ -22,7 +22,6 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"go.uber.org/dig"
 )
@@ -52,7 +51,7 @@ func main() {
 
 func execute(host, port, dsn string) error {
 	deps := []interface{}{
-		func() (*pgxpool.Pool, error) {
+		func() (db.Pool, error) {
 			return db.NewDB(dsn)
 		},
 		func() *gin.Engine {

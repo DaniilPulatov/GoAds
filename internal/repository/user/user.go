@@ -7,7 +7,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5"
 )
 
 func (r *userRepo) CreateUser(ctx context.Context, user *entities.User) (string, error) {
