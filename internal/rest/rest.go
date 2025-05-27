@@ -3,25 +3,27 @@ package rest
 import (
 	"net/http"
 
-	"ads-service/internal/rest/handlers/auth"
-
+	authHandle "ads-service/internal/rest/handlers/auth"
+	"ads-service/internal/rest/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
 	mux         *gin.Engine
-	authHandler *auth.AuthHandler
-	// mv          *auth.Midlleware
+	authHandler *authHandle.AuthHandler
+	mv          *middlware.Middleware
 }
 
-func NewServer(mux *gin.Engine, authHandler *auth.AuthHandler) *Server {
+func NewServer(mux *gin.Engine, authHandler *authHandle.AuthHandler, mdvr *middlware.Middleware) *Server {
 	mux.Use(gin.Recovery())
 	mux.Use(gin.Logger())
 
 	return &Server{
 		mux:         mux,
 		authHandler: authHandler,
+		mv:          mdvr,
 	}
+
 }
 
 func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {

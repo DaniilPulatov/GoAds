@@ -15,6 +15,7 @@ var (
 	ErrTokenGeneration = Error("error generating token")
 	ErrInvalidToken    = Error("invalid token provided")
 	ErrTokenExpired    = Error("token has expired")
+	ErrInvalidTokenDuration = Error("invalid token duration provided")
 
 	ErrFileNotAllowed = Error("file type not allowed for upload")
 	ErrAdNotFound     = Error("ad not found")

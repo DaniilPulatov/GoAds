@@ -89,23 +89,3 @@ func (s *service) GetStatistics(ctx context.Context) (entities.AdStatistics, err
 	}
 	return statistics, nil
 }
-
-// Additional methods for the admin service can be added here as needed.
-
-// This service will handle administrative tasks related to advertisements,
-// such as managing ad statuses and retrieving statistics.
-
-// The methods will interact with the ad repository to perform the necessary operations.
-
-// IsAdmin should be called in middleware to check access
-func (s *service) IsAdmin(ctx context.Context, userID string) (bool, error) {
-	userByID, err := s.userRepo.GetUserByID(ctx, userID)
-	if err != nil {
-		return false, usecaseerr.ErrGettingUser
-	}
-	if userByID == nil {
-		return false, usecaseerr.ErrUserNotFound
-	}
-
-	return userByID.Role == entities.RoleAdmin, nil
-}

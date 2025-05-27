@@ -3,11 +3,14 @@ package utils
 import (
 	"errors"
 	"log"
+	"os"
 	"regexp"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
+
+const minPasswordLength = 8 // Minimum password length
 
 type CustomClaims struct {
 	jwt.RegisteredClaims
@@ -15,7 +18,6 @@ type CustomClaims struct {
 }
 
 // Put it into env variable or config file in production
-var SecretKey = []byte("your_secret_key") // Replace it with your actual secret key
 
 func GenerateToken(userID string, duration int) (string, error) {
 	expAt := time.Duration(duration) * time.Minute
@@ -28,7 +30,7 @@ func GenerateToken(userID string, duration int) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString(SecretKey)
+	signedToken, err := token.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
 	if err != nil {
 		log.Printf("failed to sign token: %v", err)
 		return "", errors.New("failed to sign token")
@@ -45,4 +47,8 @@ func IsValidPhone(phone string) bool {
 		return false
 	}
 	return matched
+}
+
+func IsValidPassword(password string) bool {
+	return len(password) >= minPasswordLength
 }

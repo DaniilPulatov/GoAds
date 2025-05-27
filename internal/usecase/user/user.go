@@ -140,7 +140,7 @@ func (s *service) AddImageToMyAd(ctx context.Context, userID string, file *entit
 	file.URL = dirPath + "/" + file.FileName
 
 	log.Printf("file.URL: %s", file.URL)
-	_, err = s.fileRepo.AddImage(ctx, file)
+	_, err = s.fileRepo.Create(ctx, file)
 	if err != nil {
 		log.Printf("error adding image to ad %d: %v", file.AdID, err)
 		return repoerr.ErrFileInsertion
@@ -158,7 +158,7 @@ func (s *service) DeleteMyAdImage(ctx context.Context, userID string, file *enti
 		log.Println("error: user does not own the ad")
 		return usecaseerr.ErrAccessDenied
 	}
-	url, err := s.fileRepo.DeleteImage(ctx, file)
+	url, err := s.fileRepo.Delete(ctx, file)
 	if err != nil {
 		log.Printf("error deleting image from ad %d: %v", file.AdID, err)
 		return repoerr.ErrFileDeletion
@@ -183,7 +183,7 @@ func (s *service) GetImagesToMyAd(ctx context.Context, userID string, adID int) 
 		log.Println("error: user does not own the ad")
 		return nil, usecaseerr.ErrAccessDenied
 	}
-	files, err := s.fileRepo.GetAllAdImages(ctx, adID)
+	files, err := s.fileRepo.GetAll(ctx, adID)
 	if err != nil {
 		log.Printf("error getting images for ad %d: %v", adID, err)
 		return nil, repoerr.ErrSelection

@@ -7,10 +7,10 @@ import (
 	authRepository "ads-service/internal/repository/auth"
 	userRepository "ads-service/internal/repository/user"
 	authHandler "ads-service/internal/rest/handlers/auth"
+	mv "ads-service/internal/rest/middleware"
 	adminService "ads-service/internal/usecase/admin"
 	authService "ads-service/internal/usecase/auth"
 	userService "ads-service/internal/usecase/user"
-	"time"
 
 	"ads-service/internal/rest"
 	"ads-service/pkg/db"
@@ -22,14 +22,20 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"go.uber.org/dig"
 )
 
 func main() {
+	if err := godotenv.Load(".env"); err != nil {
+		log.Println("Error loading .env file, using default values")
+		os.Exit(1)
+	}
+	log.Println("Env vars loaded successfully")
 	var (
-		port = "9999"
-		host = "0.0.0.0"
-		dsn  = "postgres://user:1234@localhost:5432/adsDB?sslmode=disable"
+		port = os.Getenv("PORT")
+		host = os.Getenv("HOST")
+		dsn  = os.Getenv("DATABASE_URL")
 	)
 
 	if err := migrations.New("file://internal/migrations", dsn); err != nil {
@@ -62,13 +68,14 @@ func execute(host, port, dsn string) error {
 		adFileRepository.NewAdFileRepo,
 		adRepository.NewAdRepo,
 
+		mv.NewMiddleware,
+
 		http.NewServeMux,
 		rest.NewServer,
 		func(server *rest.Server) *http.Server {
 			return &http.Server{
-				Addr:              net.JoinHostPort(host, port),
-				Handler:           server,
-				ReadHeaderTimeout: 5 * time.Second,
+				Addr:    net.JoinHostPort(host, port),
+				Handler: server,
 			}
 		},
 	}
@@ -94,6 +101,7 @@ func execute(host, port, dsn string) error {
 	})
 
 	if err != nil {
+		log.Println("failed to start server:", err)
 		return errors.New("failed to start server")
 	}
 	return nil

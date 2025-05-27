@@ -24,7 +24,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
-	var loginReq LoginRequest
+	var loginReq AuthRequest
 
 	if err := c.ShouldBindJSON(&loginReq); err != nil {
 		c.JSON(400, gin.H{"error": "invalid request body: " + err.Error()})

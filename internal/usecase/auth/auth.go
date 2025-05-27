@@ -2,11 +2,13 @@ package auth
 
 import (
 	"ads-service/internal/domain/entities"
-	repoerr "ads-service/internal/errs/repoerr"
-	usecaserr "ads-service/internal/errs/usecaseerr"
+	repoerr "ads-service/internal/errs/repoErr"
+	usecaseerr "ads-service/internal/errs/usecaseErr"
 	"ads-service/pkg/utils"
 	"context"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -15,36 +17,31 @@ import (
 
 // TODO: Move to config or env variable
 
-const (
-	refershTokenDuration = 10_080  // Refersh Token 7 days duration in minutes
-	accessTokenDuration  = 60 * 15 // Access Token15 min duration in minutes
-	minPswdLenfth        = 8
-) // Token duration in minutes
 
 func (s *userAuthService) Register(ctx context.Context, user *entities.User) error {
 	if user.Password == "" || user.Phone == "" {
-		log.Println("HERE!!!!")
-		return usecaserr.ErrInvalidUserData
+		log.Println("phone or password is empty")
+		return usecaseerr.ErrInvalidUserData
 	}
-	if len(user.Password) < minPswdLenfth || !utils.IsValidPhone(user.Phone) {
+	if !utils.IsValidPassword(user.Password) || !utils.IsValidPhone(user.Phone) {
 		log.Println("invalid phone or password")
-		return usecaserr.ErrInvalidUserData
+		return usecaseerr.ErrInvalidUserData
 	}
 	isExists, err := s.userRepo.IsExists(ctx, user.Phone)
 	if err != nil {
 		log.Println("Error checking if user exists:", err)
-		return usecaserr.ErrCheckUserExists
+		return usecaseerr.ErrCheckUserExists
 	}
 	if isExists {
 		log.Println("User already exists with phone:", user.Phone)
-		return usecaserr.ErrUserAlreadyExists
+		return usecaseerr.ErrUserAlreadyExists
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 
 	if err != nil {
 		log.Println("Error hashing password:", err)
-		return usecaserr.ErrInvalidUserData
+		return usecaseerr.ErrInvalidUserData
 	}
 	user.PasswordHash = string(hash)
 	user.Password = "" // Clear the password field after hashing
@@ -60,88 +57,120 @@ func (s *userAuthService) Register(ctx context.Context, user *entities.User) err
 }
 
 func (s *userAuthService) Login(ctx context.Context, phone, password string) (rToken, accessToken string, err error) {
+	intRefresh, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_LIFETIME"))
+	if err != nil {
+		log.Println("Error converting refresh token duration to int:", err)
+		return "", "", usecaseerr.ErrInvalidTokenDuration
+	}
+
+	intAccess, err := strconv.Atoi(os.Getenv("ACCESS_TOKEN_LIFETIME"))
+	if err != nil {
+		log.Println("Error converting access token duration to int:", err)
+		return "", "", usecaseerr.ErrInvalidTokenDuration
+	}
+
 	if phone == "" || password == "" {
-		return "", "", usecaserr.ErrInvalidUserData
+		return "", "", usecaseerr.ErrInvalidUserData
 	}
 
 	user, err := s.userRepo.GetByPhone(ctx, phone)
 	if err != nil {
 		log.Println("Error getting user by phone:", err)
-		return "", "", usecaserr.ErrCheckUserExists
+		return "", "", usecaseerr.ErrCheckUserExists
 	}
 
 	if user == nil {
 		log.Println("User not found with phone:", phone)
-		return "", "", usecaserr.ErrUserNotFound
+		return "", "", usecaseerr.ErrUserNotFound
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
 	if err != nil {
 		log.Println("Password mismatch for user:", phone)
-		return "", "", usecaserr.ErrInvalidUserData
+		return "", "", usecaseerr.ErrInvalidUserData
 	}
 
-	rToken, err = utils.GenerateToken(user.ID, refershTokenDuration)
+	rToken, err = utils.GenerateToken(user.ID, intRefresh)
 	if err != nil {
 		log.Println("Error generating refresh token:", err)
-		return "", "", usecaserr.ErrTokenGeneration
+		return "", "", usecaseerr.ErrTokenGeneration
 	}
-	accessToken, err = utils.GenerateToken(user.ID, accessTokenDuration)
+	accessToken, err = utils.GenerateToken(user.ID, intAccess)
 	if err != nil {
 		log.Println("Error generating access token:", err)
-		return "", "", usecaserr.ErrTokenGeneration
+		return "", "", usecaseerr.ErrTokenGeneration
 	}
 
-	if err = s.authRepo.CreateToken(ctx, entities.RefreshToken{
+	if err := s.authRepo.Create(ctx, entities.Token{
 		UserID:    user.ID,
 		Token:     rToken,
-		ExpiresAt: time.Now().Local().Add(refershTokenDuration * time.Minute),
+		ExpiresAt: time.Now().Local().Add(time.Duration(intRefresh) * time.Minute),
 	}); err != nil {
 		log.Println("Error creating refresh token in repository:", err)
-		return "", "", usecaserr.ErrTokenGeneration
+		return "", "", usecaseerr.ErrTokenGeneration
 	}
 	return rToken, accessToken, nil
 }
 
-func (s *userAuthService) Refresh(
-	ctx context.Context,
-	refreshToken string,
-) (newAccessToken, newRefreshToken string, err error) {
+func (s *userAuthService) Refresh(ctx context.Context, refreshToken string) (newAccessToken, newRefreshToken string, err error) {
+	intRefresh, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_LIFETIME"))
+	if err != nil {
+		log.Println("Error converting refresh token duration to int:", err)
+		return "", "", usecaseerr.ErrInvalidTokenDuration
+	}
+
+	intAccess, err := strconv.Atoi(os.Getenv("ACCESS_TOKEN_LIFETIME"))
+	if err != nil {
+		log.Println("Error converting access token duration to int:", err)
+		return "", "", usecaseerr.ErrInvalidTokenDuration
+	}
 
 	claims := &utils.CustomClaims{}
 	token, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
-		return utils.SecretKey, nil
+		return os.Getenv("JWT_SECRET_KEY"), nil
 	})
 	if err != nil {
 		log.Println("err while parsing claims: ", err)
-		return "", "", usecaserr.ErrInvalidToken
+		return "", "", usecaseerr.ErrInvalidToken
 	}
 	if !token.Valid {
 		log.Println("token is not valid")
-		return "", "", usecaserr.ErrInvalidToken
+		return "", "", usecaseerr.ErrInvalidToken
 	}
-	if err := s.authRepo.DeleteToken(ctx, refreshToken); err != nil {
+	if err := s.authRepo.Delete(ctx, refreshToken); err != nil {
 		log.Println("err while deleting refresh token: ", err)
-		return "", "", usecaserr.ErrInvalidToken
+		return "", "", usecaseerr.ErrInvalidToken
 	}
-	newAccessToken, err = utils.GenerateToken(claims.UserID, accessTokenDuration)
+	newAccessToken, err = utils.GenerateToken(claims.UserID, intAccess)
 	if err != nil {
 		log.Println(err)
-		return "", "", usecaserr.ErrTokenGeneration
+		return "", "", usecaseerr.ErrTokenGeneration
 	}
-	newRefreshToken, err = utils.GenerateToken(claims.UserID, refershTokenDuration)
+	newRefreshToken, err = utils.GenerateToken(claims.UserID, intRefresh)
 	if err != nil {
 		log.Println(err)
-		return "", "", usecaserr.ErrTokenGeneration
+		return "", "", usecaseerr.ErrTokenGeneration
 	}
-	err = s.authRepo.CreateToken(ctx, entities.RefreshToken{
+	err = s.authRepo.Create(ctx, entities.Token{
 		UserID:    claims.UserID,
 		Token:     newRefreshToken,
-		ExpiresAt: time.Now().Local().Add(refershTokenDuration * time.Second),
+		ExpiresAt: time.Now().Local().Add(time.Duration(intAccess) * time.Minute),
 	})
 	if err != nil {
 		log.Println(err)
-		return "", "", usecaserr.ErrTokenGeneration
+		return "", "", usecaseerr.ErrTokenGeneration
 	}
 	return newAccessToken, newRefreshToken, nil
+}
+
+func (s *userAuthService) IsAdmin(ctx context.Context, userID string) (bool, error) {
+	userByID, err := s.userRepo.GetUserByID(ctx, userID)
+	if err != nil {
+		return false, usecaseerr.ErrGettingUser
+	}
+	if userByID == nil {
+		return false, usecaseerr.ErrUserNotFound
+	}
+
+	return userByID.Role == entities.RoleAdmin, nil
 }
