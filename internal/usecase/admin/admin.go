@@ -22,8 +22,14 @@ func (s *service) GetAllAds(ctx context.Context) ([]entities.Ad, error) {
 }
 
 func (s *service) DeleteAd(ctx context.Context, adID int) error {
+	if adID <= 0 {
+		log.Println("invalid ad ID")
+		return usecaseerr.ErrInvalidParams
+	}
+
 	err := s.adRepo.Delete(ctx, adID)
 	if err != nil {
+		log.Println("error deleting ad:", err)
 		return usecaseerr.ErrDeletingAd
 	}
 

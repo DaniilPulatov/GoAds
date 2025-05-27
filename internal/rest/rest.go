@@ -11,10 +11,10 @@ import (
 type Server struct {
 	mux         *gin.Engine
 	authHandler *authHandle.AuthHandler
-	mv          *middlware.Middleware
+	mv          *middleware.Middleware
 }
 
-func NewServer(mux *gin.Engine, authHandler *authHandle.AuthHandler, mdvr *middlware.Middleware) *Server {
+func NewServer(mux *gin.Engine, authHandler *authHandle.AuthHandler, mdvr *middleware.Middleware) *Server {
 	mux.Use(gin.Recovery())
 	mux.Use(gin.Logger())
 

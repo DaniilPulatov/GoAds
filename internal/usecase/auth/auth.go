@@ -2,8 +2,8 @@ package auth
 
 import (
 	"ads-service/internal/domain/entities"
-	repoerr "ads-service/internal/errs/repoErr"
-	usecaseerr "ads-service/internal/errs/usecaseErr"
+	repoerr "ads-service/internal/errs/repoerr"
+	usecaseerr "ads-service/internal/errs/usecaseerr"
 	"ads-service/pkg/utils"
 	"context"
 	"log"
@@ -16,7 +16,6 @@ import (
 )
 
 // TODO: Move to config or env variable
-
 
 func (s *userAuthService) Register(ctx context.Context, user *entities.User) error {
 	if user.Password == "" || user.Phone == "" {
@@ -112,7 +111,10 @@ func (s *userAuthService) Login(ctx context.Context, phone, password string) (rT
 	return rToken, accessToken, nil
 }
 
-func (s *userAuthService) Refresh(ctx context.Context, refreshToken string) (newAccessToken, newRefreshToken string, err error) {
+func (s *userAuthService) Refresh(
+	ctx context.Context,
+	refreshToken string,
+) (newAccessToken, newRefreshToken string, err error) {
 	intRefresh, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_LIFETIME"))
 	if err != nil {
 		log.Println("Error converting refresh token duration to int:", err)
