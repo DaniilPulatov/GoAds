@@ -63,6 +63,10 @@ func (s *service) Reject(ctx context.Context, adID int, reason string) error {
 		log.Printf("failed to get ad by id %d: %v", adID, err)
 		return usecaseerr.ErrGettingAdByID
 	}
+	if repoAd == nil {
+		log.Printf("ad with id %d not found", adID)
+		return usecaseerr.ErrGettingAdByID
+	}
 
 	repoAd.Status = entities.StatusRejected
 	repoAd.IsActive = false

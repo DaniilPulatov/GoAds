@@ -59,7 +59,7 @@ func (s *userAuthService) Register(ctx context.Context, user *entities.User) err
 	return nil
 }
 
-func (s *userAuthService) Login(ctx context.Context, phone, password string) (rToken string, accessToken string, err error) {
+func (s *userAuthService) Login(ctx context.Context, phone, password string) (rToken, accessToken string, err error) {
 	if phone == "" || password == "" {
 		return "", "", usecaserr.ErrInvalidUserData
 	}
