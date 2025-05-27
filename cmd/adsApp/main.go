@@ -101,6 +101,7 @@ func execute(host, port, dsn string) error {
 	})
 
 	if err != nil {
+		log.Println("failed to start server:", err)
 		return errors.New("failed to start server")
 	}
 	return nil

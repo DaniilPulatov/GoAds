@@ -17,18 +17,13 @@ import (
 
 // TODO: Move to config or env variable
 
-var (
-	refershTokenDuration = os.Getenv("REFRESH_TOKEN_LIFETIME")
-	accessTokenDuration  = os.Getenv("ACCESS_TOKEN_LIFETIME")
-	JWT_SECRET_KEY       = os.Getenv("JWT_SECRET_KEY")
-) // Token duration in minutes
 
 func (s *userAuthService) Register(ctx context.Context, user *entities.User) error {
 	if user.Password == "" || user.Phone == "" {
 		log.Println("phone or password is empty")
 		return usecaseerr.ErrInvalidUserData
 	}
-	if utils.IsValidPassword(user.Password) || !utils.IsValidPhone(user.Phone) {
+	if !utils.IsValidPassword(user.Password) || !utils.IsValidPhone(user.Phone) {
 		log.Println("invalid phone or password")
 		return usecaseerr.ErrInvalidUserData
 	}
@@ -62,13 +57,13 @@ func (s *userAuthService) Register(ctx context.Context, user *entities.User) err
 }
 
 func (s *userAuthService) Login(ctx context.Context, phone, password string) (rToken, accessToken string, err error) {
-	intRefresh, err := strconv.Atoi(refershTokenDuration)
+	intRefresh, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_LIFETIME"))
 	if err != nil {
 		log.Println("Error converting refresh token duration to int:", err)
 		return "", "", usecaseerr.ErrInvalidTokenDuration
 	}
 
-	intAccess, err := strconv.Atoi(accessTokenDuration)
+	intAccess, err := strconv.Atoi(os.Getenv("ACCESS_TOKEN_LIFETIME"))
 	if err != nil {
 		log.Println("Error converting access token duration to int:", err)
 		return "", "", usecaseerr.ErrInvalidTokenDuration
@@ -118,13 +113,13 @@ func (s *userAuthService) Login(ctx context.Context, phone, password string) (rT
 }
 
 func (s *userAuthService) Refresh(ctx context.Context, refreshToken string) (newAccessToken, newRefreshToken string, err error) {
-	intRefresh, err := strconv.Atoi(refershTokenDuration)
+	intRefresh, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_LIFETIME"))
 	if err != nil {
 		log.Println("Error converting refresh token duration to int:", err)
 		return "", "", usecaseerr.ErrInvalidTokenDuration
 	}
 
-	intAccess, err := strconv.Atoi(accessTokenDuration)
+	intAccess, err := strconv.Atoi(os.Getenv("ACCESS_TOKEN_LIFETIME"))
 	if err != nil {
 		log.Println("Error converting access token duration to int:", err)
 		return "", "", usecaseerr.ErrInvalidTokenDuration
@@ -132,7 +127,7 @@ func (s *userAuthService) Refresh(ctx context.Context, refreshToken string) (new
 
 	claims := &utils.CustomClaims{}
 	token, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
-		return JWT_SECRET_KEY, nil
+		return os.Getenv("JWT_SECRET_KEY"), nil
 	})
 	if err != nil {
 		log.Println("err while parsing claims: ", err)
