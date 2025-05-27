@@ -2,7 +2,7 @@ package ad
 
 import (
 	"ads-service/internal/domain/entities"
-	repoerr "ads-service/internal/errs/repoerr"
+	"ads-service/internal/errs/repoerr"
 	"context"
 	"errors"
 	"log"

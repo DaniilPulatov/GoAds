@@ -2,7 +2,7 @@ package admin
 
 import (
 	"ads-service/internal/domain/entities"
-	usecaseerr "ads-service/internal/errs/usecaseerr"
+	"ads-service/internal/errs/usecaseerr"
 	"context"
 	"log"
 	"time"
