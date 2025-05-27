@@ -11,7 +11,7 @@ import (
 )
 
 func (r *userRepo) CreateUser(ctx context.Context, user *entities.User) (string, error) {
-	err := r.pool.QueryRow(ctx, `
+	err := r.db.QueryRow(ctx, `
 		INSERT INTO users(
 				first_name, last_name, phone, 
 				password_hash
@@ -34,13 +34,13 @@ func (r *userRepo) GetByPhone(ctx context.Context, phone string) (*entities.User
 		FROM users
 		WHERE phone = $1`
 
-	row := r.pool.QueryRow(ctx, selectQuery, phone)
+	row := r.db.QueryRow(ctx, selectQuery, phone)
 	var user entities.User
 	err := row.Scan(&user.ID, &user.FName, &user.LName, &user.Phone, &user.Role,
 		&user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		log.Println("Error selecting user by phone:", err)
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, pgx.ErrNoRows
 		}
 		return nil, repoerr.ErrScan
@@ -50,7 +50,7 @@ func (r *userRepo) GetByPhone(ctx context.Context, phone string) (*entities.User
 
 func (r *userRepo) IsExists(ctx context.Context, phone string) (bool, error) {
 	selectQuery := `SELECT COUNT(*) FROM users WHERE phone = $1`
-	row := r.pool.QueryRow(ctx, selectQuery, phone)
+	row := r.db.QueryRow(ctx, selectQuery, phone)
 	var count int
 	err := row.Scan(&count)
 	if err != nil {
@@ -61,7 +61,7 @@ func (r *userRepo) IsExists(ctx context.Context, phone string) (bool, error) {
 }
 
 func (r *userRepo) GetAllUser(ctx context.Context) ([]entities.User, error) {
-	rows, err := r.pool.Query(ctx, `
+	rows, err := r.db.Query(ctx, `
 		SELECT id, first_name, last_name, phone, role
 		FROM users`)
 	if err != nil {
@@ -91,7 +91,7 @@ func (r *userRepo) GetAllUser(ctx context.Context) ([]entities.User, error) {
 
 func (r *userRepo) GetUserByID(ctx context.Context, userID string) (*entities.User, error) {
 	var user entities.User
-	err := r.pool.QueryRow(ctx, `
+	err := r.db.QueryRow(ctx, `
 		SELECT id, first_name, last_name, phone, role
 		FROM users
 		WHERE id = $1`, userID).
@@ -109,7 +109,7 @@ func (r *userRepo) GetUserByID(ctx context.Context, userID string) (*entities.Us
 }
 
 func (r *userRepo) UpdateUser(ctx context.Context, user *entities.User) error {
-	_, err := r.pool.Exec(ctx, `
+	_, err := r.db.Exec(ctx, `
 		UPDATE users
 		SET first_name = $1, last_name = $2, phone = $3, role = $4
 		WHERE id = $5;`,
@@ -123,7 +123,7 @@ func (r *userRepo) UpdateUser(ctx context.Context, user *entities.User) error {
 }
 
 func (r *userRepo) DeleteUser(ctx context.Context, userID string) error {
-	result, err := r.pool.Exec(ctx, `
+	result, err := r.db.Exec(ctx, `
 		DELETE FROM users
 		WHERE id = $1;`, userID)
 	if err != nil {

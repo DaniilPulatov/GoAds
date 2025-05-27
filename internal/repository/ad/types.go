@@ -19,9 +19,9 @@ type AdRepository interface {
 }
 
 type adRepo struct {
-	pool db.Pool
+	db db.Pool
 }
 
 func NewAdRepo(pool db.Pool) AdRepository {
-	return &adRepo{pool: pool}
+	return &adRepo{db: pool}
 }
