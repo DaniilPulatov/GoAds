@@ -11,6 +11,7 @@ import (
 	adminService "ads-service/internal/usecase/admin"
 	authService "ads-service/internal/usecase/auth"
 	userService "ads-service/internal/usecase/user"
+	"time"
 
 	"ads-service/internal/rest"
 	"ads-service/pkg/db"
@@ -74,8 +75,9 @@ func execute(host, port, dsn string) error {
 		rest.NewServer,
 		func(server *rest.Server) *http.Server {
 			return &http.Server{
-				Addr:    net.JoinHostPort(host, port),
-				Handler: server,
+				Addr:              net.JoinHostPort(host, port),
+				Handler:           server,
+				ReadHeaderTimeout: 10 * time.Second,
 			}
 		},
 	}

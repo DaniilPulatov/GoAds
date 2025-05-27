@@ -2,8 +2,8 @@ package user
 
 import (
 	"ads-service/internal/domain/entities"
-	repoerr "ads-service/internal/errs/repoerr"
-	usecaseerr "ads-service/internal/errs/usecaseerr"
+	"ads-service/internal/errs/repoerr"
+	"ads-service/internal/errs/usecaseerr"
 	"ads-service/pkg/utils"
 	"time"
 

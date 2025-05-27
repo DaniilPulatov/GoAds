@@ -12,7 +12,7 @@ type AdminAdvertisementService interface {
 	GetStatistics(ctx context.Context) (entities.AdStatistics, error)
 	DeleteAd(ctx context.Context, adID int) error
 	DeleteImage(ctx context.Context, adID int, imageID int, adminID string) error
-	Approve(ctx context.Context, adID int,) error
+	Approve(ctx context.Context, adID int) error
 	Reject(ctx context.Context, adID int, reason string) error
 }
 
