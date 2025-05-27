@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx"
 )
 
-func (r adFileRepo) AddImage(ctx context.Context, file *entities.AdFile) (int, error) {
+func (r adFileRepo) Create(ctx context.Context, file *entities.AdFile) (int, error) {
 	var (
 		insertQuery = `INSERT INTO ad_files (ad_id, file_name, url) VALUES ($1, $2, $3) RETURNING id`
 		fileID      int
@@ -24,7 +24,7 @@ func (r adFileRepo) AddImage(ctx context.Context, file *entities.AdFile) (int, e
 	return fileID, nil
 }
 
-func (r adFileRepo) DeleteImage(ctx context.Context, file *entities.AdFile) (string, error) {
+func (r adFileRepo) Delete(ctx context.Context, file *entities.AdFile) (string, error) {
 	var (
 		selectQuery = `SELECT url FROM ad_files WHERE id = $1 RETURNING url`
 		delteQuery  = `DELETE FROM ad_files WHERE id = $1 AND ad_id = $2`
@@ -49,7 +49,7 @@ func (r adFileRepo) DeleteImage(ctx context.Context, file *entities.AdFile) (str
 	return url, nil
 }
 
-func (r adFileRepo) GetAllAdImages(ctx context.Context, adID int) ([]entities.AdFile, error) {
+func (r adFileRepo) GetAll(ctx context.Context, adID int) ([]entities.AdFile, error) {
 	var (
 		selectQuery = `SELECT id, ad_id, file_name, url, created_at FROM ad_files WHERE ad_id = $1`
 		files       []entities.AdFile

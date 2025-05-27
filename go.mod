@@ -8,6 +8,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/jackc/pgx/v5 v5.7.5
+	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/dig v1.19.0
 	golang.org/x/crypto v0.38.0
