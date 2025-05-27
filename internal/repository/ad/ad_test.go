@@ -18,7 +18,7 @@ func TestAdRepo_Create(t *testing.T) {
 		mockPool := new(db.MockPool)
 		defer mockPool.AssertExpectations(t)
 
-		pool := &adRepo{pool: mockPool}
+		pool := &adRepo{db: mockPool}
 
 		mockPool.On("Exec", mock.Anything, mock.Anything, mock.Anything).
 			Return(pgconn.CommandTag{}, repoerr.ErrInsert)
@@ -32,7 +32,7 @@ func TestAdRepo_Create(t *testing.T) {
 		mockPool := new(db.MockPool)
 		defer mockPool.AssertExpectations(t)
 
-		pool := &adRepo{pool: mockPool}
+		pool := &adRepo{db: mockPool}
 
 		mockPool.On("Exec", mock.Anything, mock.Anything, mock.Anything).
 			Return(pgconn.NewCommandTag("INSERT 1"), nil)
@@ -76,7 +76,7 @@ func TestAdRepo_GetByID(t *testing.T) {
 		defer mockPool.AssertExpectations(t)
 		defer mockRow.AssertExpectations(t)
 
-		pool := &adRepo{pool: mockPool}
+		pool := &adRepo{db: mockPool}
 
 		mockPool.On("QueryRow", mock.Anything, mock.Anything, mock.Anything).
 			Return(mockRow)
