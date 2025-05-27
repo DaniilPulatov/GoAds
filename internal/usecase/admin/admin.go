@@ -44,12 +44,3 @@ func (s *service) Approve(ctx context.Context, adID int, adminID string) error {
 func (s *service) Reject(ctx context.Context, adID int, adminID string) error {
 	return nil // TODO: implement
 }
-
-// Additional methods for the admin service can be added here as needed.
-
-// This service will handle administrative tasks related to advertisements,
-// such as managing ad statuses and retrieving statistics.
-
-// The methods will interact with the ad repository to perform the necessary operations.
-
-// IsAdmin should be called in middleware to check access

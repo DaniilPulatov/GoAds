@@ -10,8 +10,8 @@ import (
 	"github.com/jackc/pgx"
 )
 
-func (r *authRepo) CreateToken(ctx context.Context, rtoken entities.RefreshToken) error {
-	if err := r.DeleteToken(ctx, rtoken.UserID); err != nil {
+func (r *authRepo) Create(ctx context.Context, rtoken entities.Token) error {
+	if err := r.Delete(ctx, rtoken.UserID); err != nil {
 		log.Println("Error deleting existing token for user:", rtoken.UserID, "Error:", err)
 		return repoerr.ErrTokenDeleteFailed
 	}
@@ -24,10 +24,10 @@ func (r *authRepo) CreateToken(ctx context.Context, rtoken entities.RefreshToken
 	}
 	return nil
 }
-func (r *authRepo) GetToken(ctx context.Context, userID string) (*entities.RefreshToken, error) {
+func (r *authRepo) Get(ctx context.Context, userID string) (*entities.Token, error) {
 	selectQuery := `SELECT token, expires_at FROM refresh_tokens WHERE user_id = $1`
 	row := r.db.QueryRow(ctx, selectQuery, userID)
-	var token entities.RefreshToken
+	var token entities.Token
 	err := row.Scan(&token.Token, &token.ExpiresAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -39,7 +39,7 @@ func (r *authRepo) GetToken(ctx context.Context, userID string) (*entities.Refre
 	}
 	return &token, nil
 }
-func (r *authRepo) UpdateToken(ctx context.Context, rtoken entities.RefreshToken) error {
+func (r *authRepo) Update(ctx context.Context, rtoken entities.Token) error {
 	updateQuery := `UPDATE refresh_tokens SET token = $1, expires_at = $2 WHERE user_id = $3`
 	_, err := r.db.Exec(ctx, updateQuery, rtoken.Token, rtoken.ExpiresAt, rtoken.UserID)
 	if err != nil {
@@ -48,7 +48,7 @@ func (r *authRepo) UpdateToken(ctx context.Context, rtoken entities.RefreshToken
 	}
 	return nil
 }
-func (r *authRepo) DeleteToken(ctx context.Context, userID string) error {
+func (r *authRepo) Delete(ctx context.Context, userID string) error {
 	deleteQuery := `DELETE FROM refresh_tokens WHERE user_id = $1`
 	_, err := r.db.Exec(ctx, deleteQuery, userID)
 	if err != nil {
@@ -58,6 +58,7 @@ func (r *authRepo) DeleteToken(ctx context.Context, userID string) error {
 	return nil
 }
 
+/*
 // TODO: Implement a cleanup function to remove expired tokens with pg_cron or similar
 func (r *authRepo) CleanUp(ctx context.Context) error {
 	deleteQuery := `DELETE FROM refresh_tokens WHERE expires_at < NOW()`
@@ -68,3 +69,4 @@ func (r *authRepo) CleanUp(ctx context.Context) error {
 	}
 	return nil
 }
+*/

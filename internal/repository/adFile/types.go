@@ -8,9 +8,9 @@ import (
 )
 
 type AdFileRepository interface {
-	AddImage(ctx context.Context, file *entities.AdFile) (int, error)
-	GetAllAdImages(ctx context.Context, adID int) ([]entities.AdFile, error)
-	DeleteImage(ctx context.Context, file *entities.AdFile) (string, error)
+	Create(ctx context.Context, file *entities.AdFile) (int, error)
+	GetAll(ctx context.Context, adID int) ([]entities.AdFile, error)
+	Delete(ctx context.Context, file *entities.AdFile) (string, error)
 }
 type adFileRepo struct {
 	db *pgxpool.Pool

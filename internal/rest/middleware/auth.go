@@ -1,26 +1,13 @@
 package middlware
 
 import (
-	"ads-service/internal/usecase/auth"
-	"ads-service/internal/usecase/user"
 	"ads-service/pkg/utils"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
-
-type Middleware struct {
-	authService auth.AuthService
-	userService user.UserAdvertisementService
-}
-
-func NewMiddleware(authService auth.AuthService, userService user.UserAdvertisementService) *Middleware {
-	return &Middleware{
-		authService: authService,
-		userService: userService,
-	}
-}
 
 func (m *Middleware) AdminAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -35,7 +22,7 @@ func (m *Middleware) AdminAuth() gin.HandlerFunc {
 
 		// TODO: Secret key should be stored securely, not hardcoded
 		token, err := jwt.ParseWithClaims(rawtoken, &utils.CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-			return utils.SecretKey, nil // Replace with your secret key
+			return os.Getenv("JWT_SECRET_KEY"), nil
 		})
 		if err != nil {
 			c.JSON(401, gin.H{"error": "unauthorized"})
