@@ -185,6 +185,16 @@ func (m *MockRows) Err() error {
 	return args.Error(0)
 }
 
+func (m *MockRows) CommandTag() pgconn.CommandTag {
+	args := m.Called()
+	return args.Get(0).(pgconn.CommandTag)
+}
+
+func (m *MockRows) FieldDescriptions() []pgconn.FieldDescription {
+	args := m.Called()
+	return args.Get(0).([]pgconn.FieldDescription)
+}
+
 func (m *MockRows) Next() bool {
 	args := m.Called()
 	return args.Bool(0)
@@ -194,6 +204,7 @@ func (m *MockRows) Scan(dest ...interface{}) error {
 	args := m.Called(dest...)
 	return args.Error(0)
 }
+
 
 func (m *MockRows) FieldDescriptions() []pgconn.FieldDescription {
 	args := m.Called()

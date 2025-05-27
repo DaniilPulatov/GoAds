@@ -17,7 +17,7 @@ func (r *authRepo) Create(ctx context.Context, rtoken entities.Token) error {
 	}
 
 	insertQuery := `INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)`
-	_, err := r.db.Exec(ctx, insertQuery, rtoken.UserID, rtoken.Token, rtoken.ExpiresAt)
+	_, err := r.pool.Exec(ctx, insertQuery, rtoken.UserID, rtoken.Token, rtoken.ExpiresAt)
 	if err != nil {
 		log.Println("Error creating token:", err)
 		return repoerr.ErrCreatingToken
@@ -26,7 +26,7 @@ func (r *authRepo) Create(ctx context.Context, rtoken entities.Token) error {
 }
 func (r *authRepo) Get(ctx context.Context, userID string) (*entities.Token, error) {
 	selectQuery := `SELECT token, expires_at FROM refresh_tokens WHERE user_id = $1`
-	row := r.db.QueryRow(ctx, selectQuery, userID)
+	row := r.pool.QueryRow(ctx, selectQuery, userID)
 	var token entities.Token
 	err := row.Scan(&token.Token, &token.ExpiresAt)
 	if err != nil {
@@ -41,7 +41,7 @@ func (r *authRepo) Get(ctx context.Context, userID string) (*entities.Token, err
 }
 func (r *authRepo) Update(ctx context.Context, rtoken entities.Token) error {
 	updateQuery := `UPDATE refresh_tokens SET token = $1, expires_at = $2 WHERE user_id = $3`
-	_, err := r.db.Exec(ctx, updateQuery, rtoken.Token, rtoken.ExpiresAt, rtoken.UserID)
+	_, err := r.pool.Exec(ctx, updateQuery, rtoken.Token, rtoken.ExpiresAt, rtoken.UserID)
 	if err != nil {
 		log.Println("Error updating token:", err)
 		return repoerr.ErrTokenUpdateFailed
@@ -50,7 +50,7 @@ func (r *authRepo) Update(ctx context.Context, rtoken entities.Token) error {
 }
 func (r *authRepo) Delete(ctx context.Context, userID string) error {
 	deleteQuery := `DELETE FROM refresh_tokens WHERE user_id = $1`
-	_, err := r.db.Exec(ctx, deleteQuery, userID)
+	_, err := r.pool.Exec(ctx, deleteQuery, userID)
 	if err != nil {
 		log.Println("Error deleting token for user:", userID, "Error:", err)
 		return repoerr.ErrTokenDeleteFailed
@@ -62,7 +62,7 @@ func (r *authRepo) Delete(ctx context.Context, userID string) error {
 // TODO: Implement a cleanup function to remove expired tokens with pg_cron or similar
 func (r *authRepo) CleanUp(ctx context.Context) error {
 	deleteQuery := `DELETE FROM refresh_tokens WHERE expires_at < NOW()`
-	_, err := r.db.Exec(ctx, deleteQuery)
+	_, err := r.pool.Exec(ctx, deleteQuery)
 	if err != nil {
 		log.Println("Error cleaning up expired tokens:", err)
 		return repoerr.ErrTokenDeleteFailed
