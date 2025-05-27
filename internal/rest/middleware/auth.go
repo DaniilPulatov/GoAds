@@ -1,4 +1,4 @@
-package middlware
+package middleware
 
 import (
 	"ads-service/pkg/utils"
@@ -8,6 +8,38 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
+
+func (m *Middleware) UserAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		data := strings.Split(authHeader, " ")
+		if len(data) != 2 || data[0] != "Bearer" {
+			c.JSON(401, gin.H{"error": "unauthorized"})
+			c.Abort()
+			return
+		}
+		rawtoken := data[1]
+
+		token, err := jwt.ParseWithClaims(rawtoken, &utils.CustomClaims{},
+			func(token *jwt.Token) (interface{}, error) {
+				return os.Getenv("JWT_SECRET_KEY"), nil
+			})
+		if err != nil {
+			c.JSON(401, gin.H{"error": "unauthorized"})
+			c.Abort()
+			return
+		}
+		claims, ok := token.Claims.(*utils.CustomClaims)
+		if !ok || !token.Valid {
+			c.JSON(401, gin.H{"error": "unauthorized"})
+			c.Abort()
+			return
+		}
+
+		c.Set("user_id", claims.UserID)
+		c.Next()
+	}
+}
 
 func (m *Middleware) AdminAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
