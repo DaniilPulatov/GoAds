@@ -2,7 +2,7 @@ CREATE TYPE role_type AS ENUM ('user', 'admin');
 CREATE TYPE ad_status AS ENUM ('pending', 'approved', 'rejected');
 CREATE EXTENSION "uuid-ossp";
 
-CREATE table users(
+CREATE TABLE users(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     first_name VARCHAR(150),
     last_name VARCHAR(150),

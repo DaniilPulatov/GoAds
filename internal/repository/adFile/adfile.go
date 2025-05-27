@@ -7,7 +7,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5"
 )
 
 func (r adFileRepo) Create(ctx context.Context, file *entities.AdFile) (int, error) {

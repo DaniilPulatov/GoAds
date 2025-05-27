@@ -5,42 +5,24 @@ import (
 	"ads-service/internal/errs/repoerr"
 	"context"
 	"errors"
+	"github.com/jackc/pgx/v5"
 	"log"
-
-	"github.com/jackc/pgx"
 )
 
-func (r adRepo) GetAll(ctx context.Context) ([]entities.Ad, error) {
-	rows, err := r.db.Query(ctx, `
-		SELECT
-		    id, author_id, title, description, category_id, 
-			status, is_active, created_at, updated_at, location
-		FROM ads
-	`)
+func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
+	_, err := r.db.Exec(ctx, `
+        INSERT INTO ads(
+            author_id, title, description, location, category_id, 
+            status, is_active, created_at, updated_at
+        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
+		ad.AuthorID, ad.Title, ad.Description, ad.Location, ad.CategoryID,
+		ad.Status, ad.IsActive, ad.CreatedAt, ad.UpdatedAt)
 	if err != nil {
-		log.Println("Error getting ads:", err)
-		return nil, repoerr.ErrGettingAllAds
+		log.Println("while inserting into ads:", err)
+		return repoerr.ErrInsert
 	}
 
-	defer rows.Close()
-
-	var ads []entities.Ad
-	for rows.Next() {
-		var ad entities.Ad
-		if err = rows.Scan(&ad.ID, &ad.AuthorID, &ad.Title, &ad.Description, &ad.CategoryID, &ad.Status,
-			&ad.IsActive, &ad.CreatedAt, &ad.UpdatedAt, &ad.Location); err != nil {
-			log.Println("Scan error:", err)
-			return nil, repoerr.ErrScan
-		}
-		ads = append(ads, ad)
-	}
-
-	if err = rows.Err(); err != nil {
-		log.Println("Error iterating rows:", err)
-		return nil, repoerr.ErrScan
-	}
-
-	return ads, nil
+	return nil
 }
 
 func (r adRepo) GetByID(ctx context.Context, id int) (*entities.Ad, error) {
@@ -98,20 +80,37 @@ func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, 
 	return ads, nil
 }
 
-func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
-	_, err := r.db.Exec(ctx, `
-        INSERT INTO ads(
-            author_id, title, description, location, category_id, 
-            status, is_active, created_at, updated_at
-        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
-		ad.AuthorID, ad.Title, ad.Description, ad.Location, ad.CategoryID,
-		ad.Status, ad.IsActive, ad.CreatedAt, ad.UpdatedAt)
+func (r adRepo) GetAll(ctx context.Context) ([]entities.Ad, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT
+		    id, author_id, title, description, category_id, 
+			status, is_active, created_at, updated_at, location
+		FROM ads
+	`)
 	if err != nil {
-		log.Println("while inserting into ads:", err)
-		return repoerr.ErrInsert
+		log.Println("Error getting ads:", err)
+		return nil, repoerr.ErrGettingAllAds
 	}
 
-	return nil
+	defer rows.Close()
+
+	var ads []entities.Ad
+	for rows.Next() {
+		var ad entities.Ad
+		if err = rows.Scan(&ad.ID, &ad.AuthorID, &ad.Title, &ad.Description, &ad.CategoryID, &ad.Status,
+			&ad.IsActive, &ad.CreatedAt, &ad.UpdatedAt, &ad.Location); err != nil {
+			log.Println("Scan error:", err)
+			return nil, repoerr.ErrScan
+		}
+		ads = append(ads, ad)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Println("Error iterating rows:", err)
+		return nil, repoerr.ErrScan
+	}
+
+	return ads, nil
 }
 
 func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
