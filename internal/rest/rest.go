@@ -34,7 +34,7 @@ func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 func (s *Server) Init() {
 	baseGroup := s.mux.Group("/ads/api/v1")
 	{
-		authGroup := baseGroup.Group("/auth").Use(s.mv.AdminAuth())
+		authGroup := baseGroup.Group("/auth")
 		{
 			authGroup.POST("/register", s.authHandler.Register)
 			authGroup.POST("/login", s.authHandler.Login)
