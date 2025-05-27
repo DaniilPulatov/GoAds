@@ -16,6 +16,7 @@ type AdRepository interface {
 	Delete(ctx context.Context, id int) error
 	Approve(ctx context.Context, id int, ad *entities.Ad) error
 	Reject(ctx context.Context, id int, ad *entities.Ad) error
+	GetStatistics(ctx context.Context) (entities.AdStatistics, error)
 }
 
 type adRepo struct {

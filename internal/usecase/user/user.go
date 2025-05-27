@@ -2,8 +2,10 @@ package user
 
 import (
 	"ads-service/internal/domain/entities"
-	repoerr "ads-service/internal/errs/repoErr"
-	usecaseerr "ads-service/internal/errs/usecaseErr"
+	repoerr "ads-service/internal/errs/repoerr"
+	usecaseerr "ads-service/internal/errs/usecaseerr"
+	"ads-service/pkg/utils"
+	"time"
 
 	"context"
 	"fmt"
@@ -15,21 +17,99 @@ import (
 const fileDirPerm = 0o600 // Permissions for the directory where ad images are stored
 
 func (s *service) CreateDraft(ctx context.Context, userID string, adEntity *entities.Ad) error {
-	return nil //TODO: implement
+	err := utils.ValidateAd(adEntity)
+	if err != nil {
+		return usecaseerr.ErrInvalidParams
+	}
+
+	adEntity.AuthorID = userID
+	adEntity.Status = entities.StatusPending
+	adEntity.IsActive = false
+	now := time.Now().UTC()
+	adEntity.CreatedAt = now
+	adEntity.UpdatedAt = now
+
+	err = s.repo.Create(ctx, adEntity)
+	if err != nil {
+		log.Println("error creating ad:", err)
+		return repoerr.ErrInsert
+	}
+
+	return nil
 }
 
 func (s *service) GetMyAds(ctx context.Context, userID string) ([]entities.Ad, error) {
-	return nil, nil //TODO: implement
+	ads, err := s.repo.GetByUserID(ctx, userID)
+	if err != nil {
+		return nil, repoerr.ErrGettingAdsByUserID
+	}
+	if len(ads) == 0 {
+		return nil, usecaseerr.ErrUserNotHaveAds
+	}
+
+	return ads, nil
 }
 
 func (s *service) UpdateMyAd(ctx context.Context, userID string, adEntity *entities.Ad) error {
-	return nil //TODO: implement
+	ad, err := s.repo.GetByID(ctx, adEntity.ID)
+	if err != nil {
+		return usecaseerr.ErrGettingAdByID
+	}
+	if ad == nil || ad.AuthorID != userID {
+		return usecaseerr.ErrAccessDenied
+	}
+
+	if err = utils.ValidateAd(adEntity); err != nil {
+		return usecaseerr.ErrInvalidParams
+	}
+
+	ad.Title = adEntity.Title
+	ad.Description = adEntity.Description
+	ad.Location = adEntity.Location
+	ad.CategoryID = adEntity.CategoryID
+	ad.UpdatedAt = time.Now().UTC()
+
+	if err = s.repo.Update(ctx, ad); err != nil {
+		return repoerr.ErrUpdate
+	}
+
+	return nil
 }
+
 func (s *service) DeleteMyAd(ctx context.Context, userID string, adID int) error {
-	return nil //TODO: implement
+	ad, err := s.repo.GetByID(ctx, adID)
+	if err != nil {
+		return usecaseerr.ErrGettingAdByID
+	}
+	if ad == nil || ad.AuthorID != userID {
+		return usecaseerr.ErrAccessDenied
+	}
+
+	if err = s.repo.Delete(ctx, adID); err != nil {
+		return repoerr.ErrDelete
+	}
+
+	return nil
 }
+
 func (s *service) SubmitForModeration(ctx context.Context, userID string, adID int) error {
-	return nil //TODO: implement
+	ad, err := s.repo.GetByID(ctx, adID)
+	if err != nil {
+		return usecaseerr.ErrGettingAdByID
+	}
+	if ad == nil || ad.AuthorID != userID {
+		return usecaseerr.ErrAccessDenied
+	}
+
+	ad.Status = entities.StatusPending
+	ad.UpdatedAt = time.Now().UTC()
+
+	err = s.repo.Update(ctx, ad)
+	if err != nil {
+		return usecaseerr.ErrApprovingAd
+	}
+
+	return nil
 }
 
 func (s *service) AddImageToMyAd(ctx context.Context, userID string, file *entities.AdFile) error {

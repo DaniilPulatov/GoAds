@@ -2,7 +2,7 @@ package user
 
 import (
 	"ads-service/internal/domain/entities"
-	repoerr "ads-service/internal/errs/repoErr"
+	repoerr "ads-service/internal/errs/repoerr"
 	"context"
 	"errors"
 	"log"
@@ -28,10 +28,16 @@ func (r *userRepo) CreateUser(ctx context.Context, user *entities.User) (string,
 }
 
 func (r *userRepo) GetByPhone(ctx context.Context, phone string) (*entities.User, error) {
-	selectQuery := `SELECT id, first_name, last_name, phone, role, password_hash, created_at, updated_at FROM users WHERE phone = $1`
+	selectQuery := `
+		SELECT id, first_name, last_name, phone, 
+		       role, password_hash, created_at, updated_at
+		FROM users
+		WHERE phone = $1`
+
 	row := r.db.QueryRow(ctx, selectQuery, phone)
 	var user entities.User
-	err := row.Scan(&user.ID, &user.FName, &user.LName, &user.Phone, &user.Role, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(&user.ID, &user.FName, &user.LName, &user.Phone, &user.Role,
+		&user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		log.Println("Error selecting user by phone:", err)
 		if err == pgx.ErrNoRows {

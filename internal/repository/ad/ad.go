@@ -184,3 +184,27 @@ func (r adRepo) Reject(ctx context.Context, id int, ad *entities.Ad) error {
 
 	return nil
 }
+
+func (r adRepo) GetStatistics(ctx context.Context) (entities.AdStatistics, error) {
+	var statistics entities.AdStatistics
+	query := `
+		SELECT
+			COUNT(*) AS total,
+			COUNT(*) FILTER (WHERE status = 'approved') AS published,
+			COUNT(*) FILTER (WHERE status = 'pending') AS pending,
+			COUNT(*) FILTER (WHERE status = 'rejected') AS rejected
+		FROM ads;
+	`
+	err := r.db.QueryRow(ctx, query).Scan(
+		&statistics.Total,
+		&statistics.Published,
+		&statistics.Pending,
+		&statistics.Rejected,
+	)
+	if err != nil {
+		log.Println("Error getting ad statistics:", err)
+		return statistics, repoerr.ErrGettingStatistics
+	}
+
+	return statistics, nil
+}
