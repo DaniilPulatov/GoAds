@@ -14,7 +14,6 @@ type AdminAdvertisementService interface {
 	DeleteImage(ctx context.Context, adID int, imageID int, adminID string) error
 	Approve(ctx context.Context, adID int, adminID string) error
 	Reject(ctx context.Context, adID int, adminID string) error
-	IsAdmin(ctx context.Context, userID string) (bool, error)
 }
 
 type service struct {

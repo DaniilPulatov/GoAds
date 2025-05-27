@@ -53,14 +53,3 @@ func (s *service) Reject(ctx context.Context, adID int, adminID string) error {
 // The methods will interact with the ad repository to perform the necessary operations.
 
 // IsAdmin should be called in middleware to check access
-func (s *service) IsAdmin(ctx context.Context, userID string) (bool, error) {
-	userByID, err := s.userRepo.GetUserByID(ctx, userID)
-	if err != nil {
-		return false, usecaseerr.ErrGettingUser
-	}
-	if userByID == nil {
-		return false, usecaseerr.ErrUserNotFound
-	}
-
-	return userByID.Role == entities.RoleAdmin, nil
-}

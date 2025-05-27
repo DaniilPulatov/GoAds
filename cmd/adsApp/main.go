@@ -2,15 +2,15 @@ package main
 
 import (
 	"ads-service/internal/migrations"
-	authRepository "ads-service/internal/repository/auth"
 	adRepository "ads-service/internal/repository/ad"
 	adFileRepository "ads-service/internal/repository/adFile"
+	authRepository "ads-service/internal/repository/auth"
 	userRepository "ads-service/internal/repository/user"
 	authHandler "ads-service/internal/rest/handlers/auth"
-	authService "ads-service/internal/usecase/auth"
+	mv "ads-service/internal/rest/middleware"
 	adminService "ads-service/internal/usecase/admin"
+	authService "ads-service/internal/usecase/auth"
 	userService "ads-service/internal/usecase/user"
-
 
 	"ads-service/internal/rest"
 	"ads-service/pkg/db"
@@ -56,11 +56,13 @@ func execute(host, port, dsn string) error {
 		authService.NewAuthService,
 		adminService.NewAdminService,
 		userService.NewUserService,
-		
+
 		authRepository.NewAuthRepo,
 		userRepository.NewUserRepo,
 		adFileRepository.NewAdFileRepo,
 		adRepository.NewAdRepo,
+
+		mv.NewMiddleware,
 
 		http.NewServeMux,
 		rest.NewServer,
