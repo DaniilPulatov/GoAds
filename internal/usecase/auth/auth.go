@@ -2,8 +2,8 @@ package auth
 
 import (
 	"ads-service/internal/domain/entities"
-	repoerr "ads-service/internal/errs/repoErr"
-	usecaseerr "ads-service/internal/errs/usecaseErr"
+	"ads-service/internal/errs/repoerr"
+	"ads-service/internal/errs/usecaseerr"
 	"ads-service/pkg/utils"
 	"context"
 	"log"
