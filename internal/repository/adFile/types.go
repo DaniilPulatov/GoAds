@@ -2,9 +2,8 @@ package adfile
 
 import (
 	"ads-service/internal/domain/entities"
+	"ads-service/pkg/db"
 	"context"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type AdFileRepository interface {
@@ -13,9 +12,9 @@ type AdFileRepository interface {
 	Delete(ctx context.Context, file *entities.AdFile) (string, error)
 }
 type adFileRepo struct {
-	db *pgxpool.Pool
+	pool db.Pool
 }
 
-func NewAdFileRepo(db *pgxpool.Pool) AdFileRepository {
-	return &adFileRepo{db: db}
+func NewAdFileRepo(db db.Pool) AdFileRepository {
+	return &adFileRepo{pool: db}
 }

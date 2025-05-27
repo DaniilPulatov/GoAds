@@ -10,7 +10,7 @@ import (
 )
 
 func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
-	_, err := r.db.Exec(ctx, `
+	_, err := r.pool.Exec(ctx, `
         INSERT INTO ads(
             author_id, title, description, location, category_id, 
             status, is_active, created_at, updated_at
@@ -27,7 +27,7 @@ func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
 
 func (r adRepo) GetByID(ctx context.Context, id int) (*entities.Ad, error) {
 	var ad entities.Ad
-	err := r.db.QueryRow(ctx, `
+	err := r.pool.QueryRow(ctx, `
 		SELECT 
 		    id, author_id, title, description, category_id, 
 			status, is_active, created_at, updated_at, location
@@ -48,7 +48,7 @@ func (r adRepo) GetByID(ctx context.Context, id int) (*entities.Ad, error) {
 }
 
 func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, error) {
-	rows, err := r.db.Query(ctx, `
+	rows, err := r.pool.Query(ctx, `
 		SELECT 
 		    id, author_id, title, description, category_id, 
 			status, is_active, created_at, updated_at, location
@@ -81,7 +81,7 @@ func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, 
 }
 
 func (r adRepo) GetAll(ctx context.Context) ([]entities.Ad, error) {
-	rows, err := r.db.Query(ctx, `
+	rows, err := r.pool.Query(ctx, `
 		SELECT
 		    id, author_id, title, description, category_id, 
 			status, is_active, created_at, updated_at, location
@@ -114,7 +114,7 @@ func (r adRepo) GetAll(ctx context.Context) ([]entities.Ad, error) {
 }
 
 func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
-	row, err := r.db.Exec(ctx, `
+	row, err := r.pool.Exec(ctx, `
 		UPDATE ads
 		SET title = $1, description = $2, location = $3, category_id = $4,
 			status = $5, is_active = $6, updated_at = $7
@@ -134,7 +134,7 @@ func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
 }
 
 func (r adRepo) Delete(ctx context.Context, id int) error {
-	row, err := r.db.Exec(ctx, `
+	row, err := r.pool.Exec(ctx, `
 		DELETE FROM ads
 		WHERE id = $1;`, id)
 	if err != nil {
@@ -150,7 +150,7 @@ func (r adRepo) Delete(ctx context.Context, id int) error {
 }
 
 func (r adRepo) Approve(ctx context.Context, id int, ad *entities.Ad) error {
-	row, err := r.db.Exec(ctx, `
+	row, err := r.pool.Exec(ctx, `
 		UPDATE ads
 		SET status = $1, is_active = $2, updated_at = $3
 		WHERE id = $4;`,
@@ -168,7 +168,7 @@ func (r adRepo) Approve(ctx context.Context, id int, ad *entities.Ad) error {
 }
 
 func (r adRepo) Reject(ctx context.Context, id int, ad *entities.Ad) error {
-	row, err := r.db.Exec(ctx, `
+	row, err := r.pool.Exec(ctx, `
 		UPDATE ads
 		SET status = $1, rejection_reason = $2, is_active = $3, updated_at = $4
 		WHERE id = $5;`, ad.Status, ad.RejectionReason, ad.IsActive, ad.UpdatedAt, id)
@@ -194,7 +194,7 @@ func (r adRepo) GetStatistics(ctx context.Context) (entities.AdStatistics, error
 			COUNT(*) FILTER (WHERE status = 'rejected') AS rejected
 		FROM ads;
 	`
-	err := r.db.QueryRow(ctx, query).Scan(
+	err := r.pool.QueryRow(ctx, query).Scan(
 		&statistics.Total,
 		&statistics.Published,
 		&statistics.Pending,

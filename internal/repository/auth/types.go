@@ -2,9 +2,8 @@ package auth
 
 import (
 	"ads-service/internal/domain/entities"
+	"ads-service/pkg/db"
 	"context"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type AuthRepository interface {
@@ -16,9 +15,9 @@ type AuthRepository interface {
 }
 
 type authRepo struct {
-	db *pgxpool.Pool
+	pool db.Pool
 }
 
-func NewAuthRepo(db *pgxpool.Pool) AuthRepository {
-	return &authRepo{db: db}
+func NewAuthRepo(pool db.Pool) AuthRepository {
+	return &authRepo{pool: pool}
 }
