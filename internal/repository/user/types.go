@@ -17,9 +17,9 @@ type UserRepository interface {
 }
 
 type userRepo struct {
-	pool db.Pool
+	db db.Pool
 }
 
 func NewUserRepo(pool db.Pool) UserRepository {
-	return &userRepo{pool: pool}
+	return &userRepo{db: pool}
 }

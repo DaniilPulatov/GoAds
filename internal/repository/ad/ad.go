@@ -161,7 +161,7 @@ func (r adRepo) Approve(ctx context.Context, id int, ad *entities.Ad) error {
 	}
 	if row.RowsAffected() == 0 {
 		log.Println("No ad found with ID:", id)
-		return repoerr.ErrApproval
+		return repoerr.ErrAdNotFound
 	}
 
 	return nil
@@ -178,7 +178,7 @@ func (r adRepo) Reject(ctx context.Context, id int, ad *entities.Ad) error {
 	}
 	if row.RowsAffected() == 0 {
 		log.Println("No ad found with ID:", id)
-		return repoerr.ErrRejection
+		return repoerr.ErrAdNotFound
 	}
 
 	return nil
