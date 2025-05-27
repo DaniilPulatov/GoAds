@@ -43,7 +43,7 @@ func (m *Middleware) AdminAuth() gin.HandlerFunc {
 			return
 		}
 		claims, ok := token.Claims.(*utils.CustomClaims)
-		if  !ok || !token.Valid {
+		if !ok || !token.Valid {
 			c.JSON(401, gin.H{"error": "unauthorized"})
 			c.Abort()
 			return
@@ -59,5 +59,5 @@ func (m *Middleware) AdminAuth() gin.HandlerFunc {
 
 		c.Next()
 	}
-	
+
 }
