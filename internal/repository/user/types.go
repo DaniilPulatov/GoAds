@@ -2,9 +2,8 @@ package user
 
 import (
 	"ads-service/internal/domain/entities"
+	"ads-service/pkg/db"
 	"context"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type UserRepository interface {
@@ -18,9 +17,9 @@ type UserRepository interface {
 }
 
 type userRepo struct {
-	db *pgxpool.Pool
+	db db.Pool
 }
 
-func NewUserRepo(db *pgxpool.Pool) UserRepository {
-	return &userRepo{db: db}
+func NewUserRepo(pool db.Pool) UserRepository {
+	return &userRepo{db: pool}
 }
