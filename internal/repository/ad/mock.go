@@ -11,6 +11,34 @@ type MockAdRepo struct {
 	mock.Mock
 }
 
+type MockAdFileRepo struct {
+	mock.Mock
+}
+
+func (m *MockAdFileRepo) Create(ctx context.Context, file *entities.AdFile) (int, error) {
+	args := m.Called(ctx, file)
+	if id, ok := args.Get(0).(int); ok {
+		return id, args.Error(1)
+	}
+	return 0, args.Error(1)
+}
+
+func (m *MockAdFileRepo) GetAll(ctx context.Context, adID int) ([]entities.AdFile, error) {
+	args := m.Called(ctx, adID)
+	if files, ok := args.Get(0).([]entities.AdFile); ok {
+		return files, args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
+func (m *MockAdFileRepo) Delete(ctx context.Context, file *entities.AdFile) (string, error) {
+	args := m.Called(ctx, file)
+	if url, ok := args.Get(0).(string); ok {
+		return url, args.Error(1)
+	}
+	return "", args.Error(1)
+}
+
 func (m *MockAdRepo) Create(ctx context.Context, ad *entities.Ad) error {
 	args := m.Called(ctx, ad)
 	return args.Error(0)
