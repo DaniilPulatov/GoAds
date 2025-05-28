@@ -217,6 +217,87 @@ paths:
       summary: Get statistics
       tags:
       - admin
+  /api/v1/ads/{id}/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads and attaches an image file to the user's draft ad
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: image added successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add image to user's ad
+      tags:
+      - User Ads
+  /api/v1/ads/{id}/image/{fid}:
+    delete:
+      description: Deletes a specific image from the user's ad by ad ID and file ID
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: File ID
+        in: path
+        name: fid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: image deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete image from user's ad
+      tags:
+      - User Ads
   /auth/login:
     post:
       consumes:
