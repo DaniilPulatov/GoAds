@@ -12,10 +12,10 @@ import (
 func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
 	_, err := r.db.Exec(ctx, `
         INSERT INTO ads(
-            author_id, title, description, location, category_id, 
+            author_id, title, description, category_id, 
             status, is_active, created_at, updated_at
-        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
-		ad.AuthorID, ad.Title, ad.Description, ad.Location, ad.CategoryID,
+        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
+		ad.AuthorID, ad.Title, ad.Description, ad.CategoryID,
 		ad.Status, ad.IsActive, ad.CreatedAt, ad.UpdatedAt)
 	if err != nil {
 		log.Println("while inserting into ads:", err)
@@ -30,11 +30,11 @@ func (r adRepo) GetByID(ctx context.Context, id int) (*entities.Ad, error) {
 	err := r.db.QueryRow(ctx, `
 		SELECT 
 		    id, author_id, title, description, category_id, 
-			status, is_active, created_at, updated_at, location
+			status, is_active, created_at, updated_at
 		FROM ads
 		WHERE id = $1`, id).
 		Scan(&ad.ID, &ad.AuthorID, &ad.Title, &ad.Description, &ad.CategoryID, &ad.Status,
-			&ad.IsActive, &ad.CreatedAt, &ad.UpdatedAt, &ad.Location)
+			&ad.IsActive, &ad.CreatedAt, &ad.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			log.Println("No ad found with ID:", id)
@@ -51,7 +51,7 @@ func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, 
 	rows, err := r.db.Query(ctx, `
 		SELECT 
 		    id, author_id, title, description, category_id, 
-			status, is_active, created_at, updated_at, location
+			status, is_active, created_at, updated_at
 		FROM ads
 		WHERE author_id = $1`, userID)
 	if err != nil {
@@ -65,7 +65,7 @@ func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, 
 	for rows.Next() {
 		var ad entities.Ad
 		if err = rows.Scan(&ad.ID, &ad.AuthorID, &ad.Title, &ad.Description, &ad.CategoryID, &ad.Status,
-			&ad.IsActive, &ad.CreatedAt, &ad.UpdatedAt, &ad.Location); err != nil {
+			&ad.IsActive, &ad.CreatedAt, &ad.UpdatedAt); err != nil {
 			log.Println("Scan error:", err)
 			return nil, repoerr.ErrScan
 		}
@@ -84,7 +84,7 @@ func (r adRepo) GetAll(ctx context.Context) ([]entities.Ad, error) {
 	rows, err := r.db.Query(ctx, `
 		SELECT
 		    id, author_id, title, description, category_id, 
-			status, is_active, created_at, updated_at, location
+			status, is_active, created_at, updated_at
 		FROM ads
 	`)
 	if err != nil {
@@ -98,7 +98,7 @@ func (r adRepo) GetAll(ctx context.Context) ([]entities.Ad, error) {
 	for rows.Next() {
 		var ad entities.Ad
 		if err = rows.Scan(&ad.ID, &ad.AuthorID, &ad.Title, &ad.Description, &ad.CategoryID, &ad.Status,
-			&ad.IsActive, &ad.CreatedAt, &ad.UpdatedAt, &ad.Location); err != nil {
+			&ad.IsActive, &ad.CreatedAt, &ad.UpdatedAt); err != nil {
 			log.Println("Scan error:", err)
 			return nil, repoerr.ErrScan
 		}
@@ -116,9 +116,9 @@ func (r adRepo) GetAll(ctx context.Context) ([]entities.Ad, error) {
 func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
 	row, err := r.db.Exec(ctx, `
 		UPDATE ads
-		SET title = $1, description = $2, location = $3, category_id = $4,
-			status = $5, is_active = $6, updated_at = $7
-		WHERE id = $8;`, ad.Title, ad.Description, ad.Location, ad.CategoryID,
+		SET title = $1, description = $2, category_id = $3,
+			status = $4, is_active = $5, updated_at = $6
+		WHERE id = $8;`, ad.Title, ad.Description, ad.CategoryID,
 		ad.Status, ad.IsActive, ad.UpdatedAt, ad.ID)
 	if err != nil {
 		log.Println("Error updating ad:", err)

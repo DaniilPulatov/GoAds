@@ -7,6 +7,7 @@ import (
 	authRepository "ads-service/internal/repository/auth"
 	userRepository "ads-service/internal/repository/user"
 	authHandler "ads-service/internal/rest/handlers/auth"
+	userHandler "ads-service/internal/rest/handlers/user"
 	mv "ads-service/internal/rest/middleware"
 	adminService "ads-service/internal/usecase/admin"
 	authService "ads-service/internal/usecase/auth"
@@ -58,7 +59,8 @@ func execute(host, port, dsn string) error {
 			return gin.New()
 		},
 		authHandler.NewAuthHandler,
-
+		userHandler.NewUserHandler,
+		
 		authService.NewAuthService,
 		adminService.NewAdminService,
 		userService.NewUserService,

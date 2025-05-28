@@ -20,7 +20,6 @@ type Ad struct {
 	UpdatedAt       time.Time
 	Status          Status
 	Title           string
-	Location        string
 	Description     string
 	RejectionReason string
 	AuthorID        string

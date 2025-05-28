@@ -26,12 +26,12 @@ func (m *MockService) DeleteAd(ctx context.Context, adID int) error {
 	args := m.Called(ctx, adID)
 	return args.Error(0)
 }
-
-func (m *MockService) DeleteImage(ctx context.Context, adID int, imageID int, adminID string) error {
+/*
+func (m *MockService) DeleteFile(ctx context.Context, adID int, imageID int, adminID string) error {
 	args := m.Called(ctx, adID, imageID, adminID)
 	return args.Error(0)
 }
-
+*/
 func (m *MockService) Approve(ctx context.Context, adID int) error {
 	args := m.Called(ctx, adID)
 	return args.Error(0)

@@ -29,5 +29,5 @@ vendor/
 # IDEs directories
 .idea
 .vscode
-./*.sql
+*.sql
 data
