@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"ads-service/internal/rest/handlers/admin"
+	"ads-service/internal/rest/handlers/user"
 	"net/http"
 
 	authHandle "ads-service/internal/rest/handlers/auth"
@@ -9,19 +11,24 @@ import (
 )
 
 type Server struct {
-	mux         *gin.Engine
-	authHandler *authHandle.AuthHandler
-	mv          *middleware.Middleware
+	mux          *gin.Engine
+	authHandler  *authHandle.AuthHandler
+	adminHandler *admin.AdminHandler
+	userHandler  *user.UserHandler
+	middleware   *middleware.Middleware
 }
 
-func NewServer(mux *gin.Engine, authHandler *authHandle.AuthHandler, mdvr *middleware.Middleware) *Server {
+func NewServer(mux *gin.Engine, authHandler *authHandle.AuthHandler, middleware *middleware.Middleware,
+	adminHandler *admin.AdminHandler, userHandler *user.UserHandler) *Server {
 	mux.Use(gin.Recovery())
 	mux.Use(gin.Logger())
 
 	return &Server{
-		mux:         mux,
-		authHandler: authHandler,
-		mv:          mdvr,
+		mux:          mux,
+		authHandler:  authHandler,
+		adminHandler: adminHandler,
+		userHandler:  userHandler,
+		middleware:   middleware,
 	}
 
 }
@@ -31,13 +38,19 @@ func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (s *Server) Init() {
-	baseGroup := s.mux.Group("/ads/api/v1")
+	const (
+		basePath = "/api/v1"
+	)
+
+	baseGroup := s.mux.Group(basePath)
+	baseGroup.Use(s.middleware.UserAuth())
 	{
-		authGroup := baseGroup.Group("/auth")
-		{
-			authGroup.POST("/register", s.authHandler.Register)
-			authGroup.POST("/login", s.authHandler.Login)
-		}
+		baseGroup.POST("/ad", s.userHandler.CreateDraft)
 	}
 
+	authGroup := baseGroup.Group("/auth")
+	{
+		authGroup.POST("/register", s.authHandler.Register)
+		authGroup.POST("/login", s.authHandler.Login)
+	}
 }
