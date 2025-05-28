@@ -17,16 +17,16 @@ type Token struct {
 }
 
 // AuthRepositoryMock — мок интерфейса AuthRepository
-type AuthRepositoryMock struct {
+type MockAuthRepository struct {
 	mock.Mock
 }
 
-func (m *AuthRepositoryMock) Create(ctx context.Context, rtoken entities.Token) error {
+func (m *MockAuthRepository) Create(ctx context.Context, rtoken entities.Token) error {
 	args := m.Called(ctx, rtoken)
 	return args.Error(0)
 }
 
-func (m *AuthRepositoryMock) Get(ctx context.Context, userID string) (*entities.Token, error) {
+func (m *MockAuthRepository) Get(ctx context.Context, userID string) (*entities.Token, error) {
 	args := m.Called(ctx, userID)
 	if token, ok := args.Get(0).(*Token); ok {
 		entitiesToken := &entities.Token{
@@ -39,12 +39,12 @@ func (m *AuthRepositoryMock) Get(ctx context.Context, userID string) (*entities.
 	return nil, args.Error(1)
 }
 
-func (m *AuthRepositoryMock) Update(ctx context.Context, rtoken entities.Token) error {
+func (m *MockAuthRepository) Update(ctx context.Context, rtoken entities.Token) error {
 	args := m.Called(ctx, rtoken)
 	return args.Error(0)
 }
 
-func (m *AuthRepositoryMock) Delete(ctx context.Context, userID string) error {
+func (m *MockAuthRepository) Delete(ctx context.Context, userID string) error {
 	args := m.Called(ctx, userID)
 	return args.Error(0)
 }

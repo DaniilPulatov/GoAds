@@ -1,28 +1,48 @@
 //nolint:all // файл содержит моки для тестов, проверки линтеров не требуются
 package auth
 
-import "github.com/stretchr/testify/mock"
+import (
+	"ads-service/internal/domain/entities"
+	"context"
+	"github.com/stretchr/testify/mock"
+)
 
 type MockAuthService struct {
 	mock.Mock
 }
 
-func (m *MockAuthService) Login(username, password string) (string, error) {
-	args := m.Called(username, password)
-	return args.String(0), args.Error(1)
+func (m *MockAuthService) Register(ctx context.Context, user *entities.User) error {
+	args := m.Called(ctx, user)
+	if err := args.Error(0); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (m *MockAuthService) Register(username, password string) (string, error) {
-	args := m.Called(username, password)
-	return args.String(0), args.Error(1)
+func (m *MockAuthService) Login(ctx context.Context, phone, password string) (string, string, error) {
+	args := m.Called(ctx, phone, password)
+	if accessToken, ok := args.Get(0).(string); ok {
+		if refreshToken, ok := args.Get(1).(string); ok {
+			return accessToken, refreshToken, args.Error(2)
+		}
+	}
+	return "", "", args.Error(2)
 }
 
-func (m *MockAuthService) RefreshToken(token string) (string, error) {
-	args := m.Called(token)
-	return args.String(0), args.Error(1)
+func (m *MockAuthService) Refresh(ctx context.Context, refreshToken string) (string, string, error) {
+	args := m.Called(ctx, refreshToken)
+	if accessToken, ok := args.Get(0).(string); ok {
+		if newRefreshToken, ok := args.Get(1).(string); ok {
+			return accessToken, newRefreshToken, args.Error(2)
+		}
+	}
+	return "", "", args.Error(2)
 }
 
-func (m *MockAuthService) IsAdmin(userID string) (bool, error) {
-	args := m.Called(userID)
-	return args.Bool(0), args.Error(1)
+func (m *MockAuthService) IsAdmin(ctx context.Context, userID string) (bool, error) {
+	args := m.Called(ctx, userID)
+	if isAdmin, ok := args.Get(0).(bool); ok {
+		return isAdmin, args.Error(1)
+	}
+	return false, args.Error(1)
 }
