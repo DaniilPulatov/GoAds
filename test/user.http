@@ -1,0 +1,45 @@
+### Авторизация пользователя (получение JWT)
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "phone": "+998445678900",
+  "password": "123456789"
+}
+
+### Создание объявления
+POST http://localhost:8080/api/v1/ads/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkwNDQ5OTUsImlhdCI6MTc0ODQ0MDE5NSwidXNlcl9pZCI6ImQ1Yzc1NGU0LWU1M2MtNDhjYy05ODU1LWI1MDg3ZjE5MDY4NiJ9.UTgnAV2YF6DlP8LldX5g1y_4pAyaiNhpngkzgkqWxQM
+
+{
+  "title": "Продам авто",
+  "description": "Отличное состояние, один владелец",
+  "categoryID": 1
+}
+
+### Получение списка своих объявлений
+GET http://localhost:8080/api/v1/ads/my
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkwNDM5ODIsImlhdCI6MTc0ODQzOTE4MiwidXNlcl9pZCI6ImQ1Yzc1NGU0LWU1M2MtNDhjYy05ODU1LWI1MDg3ZjE5MDY4NiJ9.9oEqsss2DG8KvhR8Ezru0mDj5xjSzrwN8ATcicvjSng
+
+### Изменение объявления
+PUT http://localhost:8080/api/v1/ads/3
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkwNDM5ODIsImlhdCI6MTc0ODQzOTE4MiwidXNlcl9pZCI6ImQ1Yzc1NGU0LWU1M2MtNDhjYy05ODU1LWI1MDg3ZjE5MDY4NiJ9.9oEqsss2DG8KvhR8Ezru0mDj5xjSzrwN8ATcicvjSng
+
+{
+  "title": "Обновленное объявление",
+  "description": "Новое описание объявления",
+  "categoryID": 2
+}
+
+### Отправка на рассмотрение
+POST http://localhost:8080/api/v1/ads/3/submit
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkwNDM5ODIsImlhdCI6MTc0ODQzOTE4MiwidXNlcl9pZCI6ImQ1Yzc1NGU0LWU1M2MtNDhjYy05ODU1LWI1MDg3ZjE5MDY4NiJ9.9oEqsss2DG8KvhR8Ezru0mDj5xjSzrwN8ATcicvjSng
+
+### Удаление объявления
+DELETE http://localhost:8080/api/v1/ads/3
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkwNDM5ODIsImlhdCI6MTc0ODQzOTE4MiwidXNlcl9pZCI6ImQ1Yzc1NGU0LWU1M2MtNDhjYy05ODU1LWI1MDg3ZjE5MDY4NiJ9.9oEqsss2DG8KvhR8Ezru0mDj5xjSzrwN8ATcicvjSng
