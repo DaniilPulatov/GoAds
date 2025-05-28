@@ -217,7 +217,173 @@ paths:
       summary: Get statistics
       tags:
       - admin
-  /api/v1/ads/{id}/image:
+  /ads:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all ads created by the authenticated user
+      tags:
+      - user-ads
+    post:
+      consumes:
+      - application/json
+      description: Allows a user to create an ad draft
+      parameters:
+      - description: Ad draft
+        in: body
+        name: ad
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Ad'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new ad draft
+      tags:
+      - user-ads
+  /ads/{id}:
+    delete:
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a user's own ad
+      tags:
+      - user-ads
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated ad data
+        in: body
+        name: ad
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Ad'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a user's own ad
+      tags:
+      - user-ads
+  /ads/{id}/image:
+    get:
+      description: Returns all images attached to the user's ad by ID
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: list of images
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get images of user's ad
+      tags:
+      - user-ads
     post:
       consumes:
       - multipart/form-data
@@ -257,8 +423,8 @@ paths:
       - BearerAuth: []
       summary: Add image to user's ad
       tags:
-      - User Ads
-  /api/v1/ads/{id}/image/{fid}:
+      - user-ads
+  /ads/{id}/image/{fid}:
     delete:
       description: Deletes a specific image from the user's ad by ad ID and file ID
       parameters:
@@ -297,7 +463,41 @@ paths:
       - BearerAuth: []
       summary: Delete image from user's ad
       tags:
-      - User Ads
+      - user-ads
+  /ads/{id}/submit:
+    post:
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Submit an ad for moderation
+      tags:
+      - user-ads
   /auth/login:
     post:
       consumes:
@@ -368,163 +568,6 @@ paths:
       summary: Register a new user
       tags:
       - Auth
-  /user/ads:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Get all ads created by the authenticated user
-      tags:
-      - user-ads
-    post:
-      consumes:
-      - application/json
-      description: Allows a user to create an ad draft
-      parameters:
-      - description: Ad draft
-        in: body
-        name: ad
-        required: true
-        schema:
-          $ref: '#/definitions/entities.Ad'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Create a new ad draft
-      tags:
-      - user-ads
-  /user/ads/{id}:
-    delete:
-      parameters:
-      - description: Ad ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Delete a user's own ad
-      tags:
-      - user-ads
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: Ad ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Updated ad data
-        in: body
-        name: ad
-        required: true
-        schema:
-          $ref: '#/definitions/entities.Ad'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Update a user's own ad
-      tags:
-      - user-ads
-  /user/ads/{id}/submit:
-    post:
-      parameters:
-      - description: Ad ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Submit an ad for moderation
-      tags:
-      - user-ads
 schemes:
 - http
 swagger: "2.0"

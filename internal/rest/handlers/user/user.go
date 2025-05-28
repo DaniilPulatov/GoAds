@@ -19,7 +19,8 @@ import (
 // @Success      201  {object}  map[string]string
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /user/ads [post]
+// @Security BearerAuth
+// @Router       /ads [post]
 func (h *UserHandler) CreateDraft(c *gin.Context) {
 	var ad entities.Ad
 	if err := c.ShouldBindJSON(&ad); err != nil {
@@ -42,7 +43,8 @@ func (h *UserHandler) CreateDraft(c *gin.Context) {
 // @Produce      json
 // @Success      200  {object}  map[string]interface{}
 // @Failure      500  {object}  map[string]string
-// @Router       /user/ads [get]
+// @Security BearerAuth
+// @Router       /ads [get]
 func (h *UserHandler) GetMyAds(c *gin.Context) {
 	userID := c.GetString("user_id")
 	ads, err := h.userService.GetMyAds(c.Request.Context(), userID)
@@ -64,7 +66,8 @@ func (h *UserHandler) GetMyAds(c *gin.Context) {
 // @Success      200  {object}  map[string]string
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /user/ads/{id} [put]
+// @Security BearerAuth
+// @Router       /ads/{id} [put]
 func (h *UserHandler) UpdateMyAd(c *gin.Context) {
 	var ad entities.Ad
 	adIDStr := c.Param("id")
@@ -97,7 +100,8 @@ func (h *UserHandler) UpdateMyAd(c *gin.Context) {
 // @Success      200  {object}  map[string]string
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /user/ads/{id} [delete]
+// @Security BearerAuth
+// @Router       /ads/{id} [delete]
 func (h *UserHandler) DeleteMyAd(c *gin.Context) {
 	adIDStr := c.Param("id")
 	adID, err := strconv.Atoi(adIDStr)
@@ -122,7 +126,8 @@ func (h *UserHandler) DeleteMyAd(c *gin.Context) {
 // @Success      200  {object}  map[string]string
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /user/ads/{id}/submit [post]
+// @Security BearerAuth
+// @Router       /ads/{id}/submit [post]
 func (h *UserHandler) SubmitForModeration(c *gin.Context) {
 	adIDStr := c.Param("id")
 	adID, err := strconv.Atoi(adIDStr)
@@ -142,7 +147,7 @@ func (h *UserHandler) SubmitForModeration(c *gin.Context) {
 // AddImageToMyAd godoc
 // @Summary Add image to user's ad
 // @Description Uploads and attaches an image file to the user's draft ad
-// @Tags User Ads
+// @Tags user-ads
 // @Accept multipart/form-data
 // @Produce json
 // @Param id path int true "Ad ID"
@@ -151,7 +156,7 @@ func (h *UserHandler) SubmitForModeration(c *gin.Context) {
 // @Failure 400 {object} map[string]string "invalid input"
 // @Failure 500 {object} map[string]string "internal error"
 // @Security BearerAuth
-// @Router /api/v1/ads/{id}/image [post]
+// @Router /ads/{id}/image [post]
 func (h *UserHandler) AddImageToMyAd(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
@@ -185,7 +190,7 @@ func (h *UserHandler) AddImageToMyAd(c *gin.Context) {
 // DeleteMyAdImage godoc
 // @Summary Delete image from user's ad
 // @Description Deletes a specific image from the user's ad by ad ID and file ID
-// @Tags User Ads
+// @Tags user-ads
 // @Produce json
 // @Param id path int true "Ad ID"
 // @Param fid path int true "File ID"
@@ -193,7 +198,7 @@ func (h *UserHandler) AddImageToMyAd(c *gin.Context) {
 // @Failure 400 {object} map[string]string "invalid input"
 // @Failure 500 {object} map[string]string "internal error"
 // @Security BearerAuth
-// @Router /api/v1/ads/{id}/image/{fid} [delete]
+// @Router /ads/{id}/image/{fid} [delete]
 func (h *UserHandler) DeleteMyAdImage(c *gin.Context) {
 	adID := c.Param("id")
 	fID := c.Param("fid")
@@ -223,15 +228,14 @@ func (h *UserHandler) DeleteMyAdImage(c *gin.Context) {
 // GetImagesToMyAd godoc
 // @Summary Get images of user's ad
 // @Description Returns all images attached to the user's ad by ID
-// @Tags User Ads
+// @Tags user-ads
 // @Produce json
 // @Param id path int true "Ad ID"
 // @Success 200 {object} map[string]interface{} "list of images"
 // @Failure 400 {object} map[string]string "invalid input"
 // @Failure 500 {object} map[string]string "internal error"
 // @Security BearerAuth
-// @Router /api/v1/ads/{id}/image [get]
-
+// @Router /ads/{id}/image [get]
 func (h *UserHandler) GetImagesToMyAd(c *gin.Context) {
 	adID := c.Param("id")
 	intID, err := strconv.Atoi(adID)
