@@ -51,6 +51,10 @@ func (s *service) GetMyAds(ctx context.Context, userID string) ([]entities.Ad, e
 }
 
 func (s *service) UpdateMyAd(ctx context.Context, userID string, adEntity *entities.Ad) error {
+	log.Println(adEntity.Title)
+	log.Println(adEntity.ID)
+	log.Println(adEntity.Description)
+
 	ad, err := s.repo.GetByID(ctx, adEntity.ID)
 	if err != nil {
 		return usecaseerr.ErrGettingAdByID

@@ -5,7 +5,6 @@ import (
 	"ads-service/internal/errs/usecaseerr"
 	"context"
 	"log"
-	"os"
 	"time"
 )
 
@@ -37,20 +36,21 @@ func (s *service) DeleteAd(ctx context.Context, adID int) error {
 	return nil
 }
 
-func (s *service) DeleteFile(ctx context.Context, file *entities.AdFile) (error) {
-	url, err := s.fileDel.Delete(ctx, file)
-	if err != nil{
-		log.Println("error while deleteing image: ", err)
-		return err // TODO: wrap error
+/*
+	func (s *service) DeleteFile(ctx context.Context, file *entities.AdFile) (error) {
+		url, err := s.fileDel.Delete(ctx, file)
+		if err != nil{
+			log.Println("error while deleteing image: ", err)
+			return err // TODO: wrap error
+		}
+		if err := os.Remove(url); err != nil{
+			log.Printf("error while deleteing file at url:%v\n%v\n", url, err)
+			return err // TODO: wrap error
+		}
+		log.Println("image deleted successfully")
+		return nil
 	}
-	if err := os.Remove(url); err != nil{
-		log.Printf("error while deleteing file at url:%v\n%v\n", url, err)
-		return err // TODO: wrap error
-	}
-	log.Println("image deleted successfully")
-	return nil
-}
-
+*/
 func (s *service) Approve(ctx context.Context, adID int) error {
 	repoAd, err := s.adRepo.GetByID(ctx, adID)
 	if err != nil {

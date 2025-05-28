@@ -2,23 +2,12 @@ package user
 
 import (
 	"ads-service/internal/domain/entities"
-	"ads-service/internal/usecase/user"
 	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
-
-type UserHandler struct {
-	userService user.UserAdvertisementService
-}
-
-func NewUserHandler(userService user.UserAdvertisementService) *UserHandler {
-	return &UserHandler{
-		userService: userService,
-	}
-}
 
 func (h *UserHandler) CreateDraft(c *gin.Context) {
 	var ad entities.Ad
@@ -49,6 +38,15 @@ func (h *UserHandler) GetMyAds(c *gin.Context) {
 
 func (h *UserHandler) UpdateMyAd(c *gin.Context) {
 	var ad entities.Ad
+	adIDStr := c.Param("id")
+	adID, err := strconv.Atoi(adIDStr)
+	if err != nil || adID <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ad ID: " + err.Error()})
+		return
+	}
+
+	ad.ID = adID
+
 	if err := c.ShouldBindJSON(&ad); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body: " + err.Error()})
 		return

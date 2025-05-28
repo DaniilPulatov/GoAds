@@ -118,7 +118,7 @@ func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
 		UPDATE ads
 		SET title = $1, description = $2, category_id = $3,
 			status = $4, is_active = $5, updated_at = $6
-		WHERE id = $8;`, ad.Title, ad.Description, ad.CategoryID,
+		WHERE id = $7;`, ad.Title, ad.Description, ad.CategoryID,
 		ad.Status, ad.IsActive, ad.UpdatedAt, ad.ID)
 	if err != nil {
 		log.Println("Error updating ad:", err)
