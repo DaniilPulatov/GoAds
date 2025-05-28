@@ -13,5 +13,5 @@ func NewAdminHandler(adminService admin.AdminAdvertisementService) *AdminHandler
 }
 
 type RejectionRequest struct {
-	Reason string `json:"reason" binding:"required"`
+	Reason string `json:"rejection_reason" binding:"required"`
 }

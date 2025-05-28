@@ -53,8 +53,8 @@ func (s *Server) Init() {
 	userGroup := baseGroup.Group("/ads")
 	userGroup.Use(s.middleware.UserAuth())
 	{
-		userGroup.POST("", s.userHandler.CreateDraft)
-		userGroup.GET("my", s.userHandler.GetMyAds)
+		userGroup.POST("/create", s.userHandler.CreateDraft)
+		userGroup.GET("/my", s.userHandler.GetMyAds)
 		userGroup.PUT("/:id", s.userHandler.UpdateMyAd)
 		userGroup.DELETE("/:id", s.userHandler.DeleteMyAd)
 		userGroup.POST("/:id/submit", s.userHandler.SubmitForModeration)

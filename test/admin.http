@@ -1,0 +1,54 @@
+### Авторизация администратора (получение JWT)
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "phone": "+998111111111",
+  "password": "password"
+}
+
+###
+
+### Получение всех объявлений
+GET http://localhost:8080/api/v1/admin/ads
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkwNDQ4NjAsImlhdCI6MTc0ODQ0MDA2MCwidXNlcl9pZCI6IjczZGZiMWI5LTJiZjYtNDdiZC1iMGM5LTM4ZmIxOTFkZTNlMSJ9.4Z5na5GJFNRjHlUAP-Hcs4wqzLgwqvz8tD18o_0zxmk
+
+###
+
+### Получение статистики
+GET http://localhost:8080/api/v1/admin/stats
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkwNDQ4NjAsImlhdCI6MTc0ODQ0MDA2MCwidXNlcl9pZCI6IjczZGZiMWI5LTJiZjYtNDdiZC1iMGM5LTM4ZmIxOTFkZTNlMSJ9.4Z5na5GJFNRjHlUAP-Hcs4wqzLgwqvz8tD18o_0zxmk
+
+###
+
+### Одобрение объявления
+POST http://localhost:8080/api/v1/admin/ads/4/approve
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkwNDQ4NjAsImlhdCI6MTc0ODQ0MDA2MCwidXNlcl9pZCI6IjczZGZiMWI5LTJiZjYtNDdiZC1iMGM5LTM4ZmIxOTFkZTNlMSJ9.4Z5na5GJFNRjHlUAP-Hcs4wqzLgwqvz8tD18o_0zxmk
+
+###
+
+### Отклонение объявления
+POST http://localhost:8080/api/v1/admin/ads/6/reject
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkwNDQ4NjAsImlhdCI6MTc0ODQ0MDA2MCwidXNlcl9pZCI6IjczZGZiMWI5LTJiZjYtNDdiZC1iMGM5LTM4ZmIxOTFkZTNlMSJ9.4Z5na5GJFNRjHlUAP-Hcs4wqzLgwqvz8tD18o_0zxmk
+
+{
+  "rejection_reason": "Некорректное описание"
+}
+
+###
+
+### Удаление объявления
+DELETE http://localhost:8080/api/v1/admin/ads/6
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkwNDQ4NjAsImlhdCI6MTc0ODQ0MDA2MCwidXNlcl9pZCI6IjczZGZiMWI5LTJiZjYtNDdiZC1iMGM5LTM4ZmIxOTFkZTNlMSJ9.4Z5na5GJFNRjHlUAP-Hcs4wqzLgwqvz8tD18o_0zxmk
+
+###
+
+### Удаление изображения объявления
+DELETE http://localhost:8080/api/v1/admin/ads/3/image/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkwNDQ4NjAsImlhdCI6MTc0ODQ0MDA2MCwidXNlcl9pZCI6IjczZGZiMWI5LTJiZjYtNDdiZC1iMGM5LTM4ZmIxOTFkZTNlMSJ9.4Z5na5GJFNRjHlUAP-Hcs4wqzLgwqvz8tD18o_0zxmk
