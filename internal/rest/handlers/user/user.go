@@ -94,8 +94,11 @@ func (h *UserHandler) SubmitForModeration(c *gin.Context) {
 }
 
 func (h *UserHandler) AddImageToMyAd(c *gin.Context) {
+	log.Println("YOU ARE HERE~!!!!")
+
 	file, err := c.FormFile("file")
 	if err != nil {
+		log.Println("Error no file provided: ", err)
 		c.JSON(400, gin.H{"error": "failed to get file from form: " + err.Error()})
 		return
 	}
@@ -103,6 +106,7 @@ func (h *UserHandler) AddImageToMyAd(c *gin.Context) {
 	adID := c.Param("id")
 	intID, err := strconv.Atoi(adID)
 	if err != nil || intID <= 0 {
+		log.Println("Error converting to int: ", err)
 		c.JSON(400, gin.H{"error": "invalid ad ID: " + err.Error()})
 		return
 	}
@@ -113,6 +117,7 @@ func (h *UserHandler) AddImageToMyAd(c *gin.Context) {
 	}
 	err = h.userService.AddImageToMyAd(c.Request.Context(), c.GetString("user_id"), adFile)
 	if err != nil {
+		log.Println("Error adding image to ad: ", err)
 		c.JSON(500, gin.H{"error": "failed to add image to ad: " + err.Error()})
 		return
 	}

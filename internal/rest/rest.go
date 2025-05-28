@@ -23,7 +23,6 @@ func NewServer(mux *gin.Engine, authHandler *authHandle.AuthHandler, middleware 
 	adminHandler *admin.AdminHandler, userHandler *user.UserHandler) *Server {
 	mux.Use(gin.Recovery())
 	mux.Use(gin.Logger())
-	mux.LoadHTMLGlob("web/*")
 
 	return &Server{
 		mux:          mux,
