@@ -276,6 +276,63 @@ func TestUserRepo_GetAllUser(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, expectedUsers, users)
 	})
+
+	t.Run("no users found", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		mockRows := new(db.MockRows)
+		defer mockPool.AssertExpectations(t)
+		defer mockRows.AssertExpectations(t)
+
+		pool := &userRepo{db: mockPool}
+
+		mockPool.On("Query", mock.Anything, mock.Anything, mock.Anything).
+			Return(mockRows, nil)
+
+		mockRows.On("Next").Return(false).Once()
+		mockRows.On("Err").Return(nil)
+		mockRows.On("Close").Return()
+
+		users, err := pool.GetAllUser(context.Background())
+		assert.Nil(t, err)
+		assert.Empty(t, users)
+	})
+
+	t.Run("scan error", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		mockRows := new(db.MockRows)
+		defer mockPool.AssertExpectations(t)
+		defer mockRows.AssertExpectations(t)
+
+		pool := &userRepo{db: mockPool}
+		mockPool.On("Query", mock.Anything, mock.Anything, mock.Anything).
+			Return(mockRows, nil)
+		mockRows.On("Next").Return(true).Once()
+		mockRows.On("Scan", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(errors.New("scan error")).Once()
+		mockRows.On("Close").Return()
+
+		users, err := pool.GetAllUser(context.Background())
+		assert.Nil(t, users)
+		assert.Equal(t, repoerr.ErrScan, err)
+	})
+
+	t.Run("rows error", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		mockRows := new(db.MockRows)
+		defer mockPool.AssertExpectations(t)
+		defer mockRows.AssertExpectations(t)
+
+		pool := &userRepo{db: mockPool}
+		mockPool.On("Query", mock.Anything, mock.Anything, mock.Anything).
+			Return(mockRows, nil)
+		mockRows.On("Next").Return(false).Once()
+		mockRows.On("Err").Return(errors.New("rows error")).Once()
+		mockRows.On("Close").Return()
+
+		users, err := pool.GetAllUser(context.Background())
+		assert.Nil(t, users)
+		assert.Equal(t, repoerr.ErrScan, err)
+	})
 }
 
 func TestUserRepo_GetUserByID(t *testing.T) {
@@ -410,5 +467,127 @@ func TestUserRepo_DeleteUser(t *testing.T) {
 
 		err := pool.DeleteUser(context.Background(), "test-id")
 		assert.Nil(t, err)
+	})
+
+	t.Run("delete user not found", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		defer mockPool.AssertExpectations(t)
+
+		pool := &userRepo{db: mockPool}
+		mockPool.On("Exec", mock.Anything, mock.Anything, mock.Anything).
+			Return(pgconn.NewCommandTag("DELETE 0"), nil)
+
+		err := pool.DeleteUser(context.Background(), "not-found-id")
+		assert.NotNil(t, err)
+		assert.Equal(t, repoerr.ErrUserNotFound, err)
+	})
+}
+
+func TestUserRepo_GetUserByID_Args(t *testing.T) {
+	t.Run("QueryRow called с правильными аргументами", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		mockRow := new(db.MockRow)
+		defer mockPool.AssertExpectations(t)
+		defer mockRow.AssertExpectations(t)
+
+		pool := &userRepo{db: mockPool}
+		id := "id"
+		mockPool.On("QueryRow", mock.Anything, mock.Anything,
+			mock.MatchedBy(func(args []interface{}) bool {
+				return len(args) == 1 && args[0] == "id"
+			}),
+		).Return(mockRow)
+		mockRow.On("Scan", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(pgx.ErrNoRows)
+
+		user, err := pool.GetUserByID(context.Background(), id)
+		assert.Nil(t, user)
+		assert.Equal(t, repoerr.ErrUserNotFound, err)
+	})
+}
+
+func TestUserRepo_UpdateUser_Args(t *testing.T) {
+	t.Run("Exec_called_with_правильными_аргументами", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		defer mockPool.AssertExpectations(t)
+
+		repo := NewUserRepo(mockPool)
+
+		user := &entities.User{
+			ID:    "id",
+			FName: "Имя",
+			LName: "Фамилия",
+			Phone: "123",
+			Role:  "user",
+		}
+
+		mockPool.On("Exec", mock.Anything, mock.Anything, mock.Anything).
+			Return(pgconn.NewCommandTag("UPDATE 1"), nil)
+
+		err := repo.UpdateUser(context.Background(), user)
+		assert.NoError(t, err)
+	})
+}
+
+func TestUserRepo_GetAllUser_ScanAndErr(t *testing.T) {
+	t.Run("rows.Err возвращает ошибку после Next", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		mockRows := new(db.MockRows)
+		defer mockPool.AssertExpectations(t)
+		defer mockRows.AssertExpectations(t)
+
+		pool := &userRepo{db: mockPool}
+		mockPool.On("Query", mock.Anything, mock.Anything, mock.Anything).
+			Return(mockRows, nil)
+		mockRows.On("Next").Return(false).Once()
+		mockRows.On("Err").Return(errors.New("rows error")).Once()
+		mockRows.On("Close").Return()
+
+		users, err := pool.GetAllUser(context.Background())
+		assert.Nil(t, users)
+		assert.Equal(t, repoerr.ErrScan, err)
+	})
+}
+
+func TestUserRepo_GetByPhone_Args(t *testing.T) {
+	t.Run("QueryRow called with right argument", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		mockRow := new(db.MockRow)
+		defer mockPool.AssertExpectations(t)
+		defer mockRow.AssertExpectations(t)
+
+		pool := &userRepo{db: mockPool}
+		phone := "9876543210"
+		mockPool.On("QueryRow", mock.Anything, mock.Anything,
+			[]interface{}{"9876543210"}).Return(mockRow)
+		mockRow.On("Scan", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+			mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(pgx.ErrNoRows)
+
+		user, err := pool.GetByPhone(context.Background(), phone)
+		assert.Nil(t, user)
+		assert.Equal(t, pgx.ErrNoRows, err)
+	})
+}
+
+func TestUserRepo_IsExists_Args(t *testing.T) {
+	t.Run("QueryRow called с правильными аргументами", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		mockRow := new(db.MockRow)
+		defer mockPool.AssertExpectations(t)
+		defer mockRow.AssertExpectations(t)
+
+		pool := &userRepo{db: mockPool}
+		phone := "555"
+		mockPool.On("QueryRow", mock.Anything, mock.Anything, []interface{}{phone}).
+			Return(mockRow)
+		mockRow.On("Scan", mock.Anything).Run(func(args mock.Arguments) {
+			ptr := args.Get(0).(*int)
+			*ptr = 1
+		}).Return(nil)
+
+		exists, err := pool.IsExists(context.Background(), phone)
+		assert.Nil(t, err)
+		assert.True(t, exists)
 	})
 }

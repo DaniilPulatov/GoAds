@@ -6,6 +6,7 @@ import (
 	"ads-service/pkg/db"
 	"context"
 	"errors"
+	"github.com/jackc/pgx/v5"
 	"testing"
 	"time"
 
@@ -76,7 +77,11 @@ func TestGetToken_Success(t *testing.T) {
 	actualToken, err := mockRepo.Get(ctx, "user-123")
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectedToken, actualToken)
+	assert.Equal(t, &entities.Token{
+		UserID:    expectedToken.UserID,
+		Token:     expectedToken.Token,
+		ExpiresAt: expectedToken.ExpiresAt,
+	}, actualToken)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -98,7 +103,7 @@ func TestUpdateToken_Success(t *testing.T) {
 	mockRepo := new(AuthRepositoryMock)
 	ctx := context.Background()
 
-	rtoken := Token{
+	rtoken := entities.Token{
 		UserID:    "user-123",
 		Token:     "updated-token",
 		ExpiresAt: time.Now().Add(48 * time.Hour),
@@ -116,7 +121,7 @@ func TestUpdateToken_Error(t *testing.T) {
 	mockRepo := new(AuthRepositoryMock)
 	ctx := context.Background()
 
-	rtoken := Token{
+	rtoken := entities.Token{
 		UserID:    "user-123",
 		Token:     "",
 		ExpiresAt: time.Now().Add(48 * time.Hour), // Пустой токен
@@ -158,4 +163,66 @@ func TestDeleteToken_Error(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "user not found", err.Error())
 	mockRepo.AssertExpectations(t)
+}
+
+func TestAuthRepo_Get(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		mockDB := new(db.MockPool)
+		defer mockDB.AssertExpectations(t)
+
+		repo := &authRepo{pool: mockDB}
+		ctx := context.Background()
+		userID := "user-123"
+		expectedToken := "refresh-token-xyz"
+		expectedExpires := time.Now().Add(24 * time.Hour)
+
+		mockRow := new(db.MockRow)
+		mockRow.On("Scan", mock.AnythingOfType("*string"),
+			mock.AnythingOfType("*time.Time")).
+			Run(func(args mock.Arguments) {
+				*(args[0].(*string)) = expectedToken
+				*(args[1].(*time.Time)) = expectedExpires
+			}).Return(nil)
+
+		mockDB.On("QueryRow", ctx, mock.Anything, []interface{}{userID}).Return(mockRow)
+
+		token, err := repo.Get(ctx, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedToken, token.Token)
+		assert.WithinDuration(t, expectedExpires, token.ExpiresAt, time.Second)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		mockDB := new(db.MockPool)
+		defer mockDB.AssertExpectations(t)
+
+		repo := &authRepo{pool: mockDB}
+		ctx := context.Background()
+		userID := "not-exist"
+
+		mockRow := new(db.MockRow)
+		mockRow.On("Scan", mock.Anything, mock.Anything).Return(pgx.ErrNoRows)
+		mockDB.On("QueryRow", ctx, mock.Anything, []interface{}{userID}).Return(mockRow)
+
+		token, err := repo.Get(ctx, userID)
+		assert.Nil(t, token)
+		assert.Equal(t, repoerr.ErrTokenNotFound, err)
+	})
+
+	t.Run("scan error", func(t *testing.T) {
+		mockDB := new(db.MockPool)
+		defer mockDB.AssertExpectations(t)
+
+		repo := &authRepo{pool: mockDB}
+		ctx := context.Background()
+		userID := "user-err"
+
+		mockRow := new(db.MockRow)
+		mockRow.On("Scan", mock.Anything, mock.Anything).Return(errors.New("scan error"))
+		mockDB.On("QueryRow", ctx, mock.Anything, []interface{}{userID}).Return(mockRow)
+
+		token, err := repo.Get(ctx, userID)
+		assert.Nil(t, token)
+		assert.Equal(t, repoerr.ErrTokenSelectFailed, err)
+	})
 }

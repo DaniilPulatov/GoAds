@@ -6,10 +6,12 @@ import (
 	"ads-service/pkg/db"
 	"context"
 	"errors"
-	"testing"
-
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"testing"
+	"time"
 )
 
 func TestAdFileRepo_Create(t *testing.T) {
@@ -53,80 +55,37 @@ func TestAdFileRepo_Create(t *testing.T) {
 	})
 }
 
-/*
-	func TestAdFileRepo_Delete(t *testing.T) {
-		t.Run("success", func(t *testing.T) {
-			mockPool := new(db.MockPool)
-			defer mockPool.AssertExpectations(t)
-
-			repo := NewAdFileRepo(mockPool)
-			file := &entities.AdFile{ID: 1, AdID: 1}
-
-			mockRow := new(db.MockRow)
-			mockRow.On("Scan", mock.AnythingOfType("*string")).Run(func(args mock.Arguments) {
-				*(args[0].(*string)) = "http://example.com/file.jpg"
-			}).Return(nil)
-			mockPool.On("QueryRow", mock.Anything, mock.Anything, mock.MatchedBy(func(arg interface{}) bool {
-				if args, ok := arg.([]interface{}); ok && len(args) == 1 {
-					if id, ok := args[0].(int); ok {
-						return id == file.ID
-					}
-				}
-				return false
-			})).Return(mockRow)
-			mockPool.On("Exec", mock.Anything, mock.Anything, file.ID, file.AdID).Return(nil, nil)
-
-			url, err := repo.Delete(context.Background(), file)
-			assert.NoError(t, err)
-			assert.Equal(t, "http://example.com/file.jpg", url)
-		})
-
-		t.Run("not found", func(t *testing.T) {
-			mockPool := new(db.MockPool)
-			defer mockPool.AssertExpectations(t)
-			repo := NewAdFileRepo(mockPool)
-			file := &entities.AdFile{ID: 1, AdID: 1}
-
-			mockRow := new(db.MockRow)
-			mockRow.On("Scan", mock.Anything).Return(errors.New("no rows in result set"))
-			mockPool.On("QueryRow", mock.Anything, mock.Anything, mock.MatchedBy(func(args []interface{}) bool {
-				return len(args) == 1 && args[0] == file.ID
-			})).Return(mockRow)
-
-			url, err := repo.Delete(context.Background(), file)
-			assert.Equal(t, "", url)
-			assert.Equal(t, repoerr.ErrFileNotFound, err)
-		})
-	}
-
-	func TestAdFileRepo_GetAll(t *testing.T) {
+func TestAdFileRepo_GetAll(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockPool := new(db.MockPool)
-		mockRows := new(db.MockRows) // Using db.MockRows as per your provided mock
 		defer mockPool.AssertExpectations(t)
-		defer mockRows.AssertExpectations(t)
 
 		repo := NewAdFileRepo(mockPool)
 
 		adID := 1
-		// FIX: Pass adID as a slice of interface{} for variadic argument matching
-		mockPool.On("Query", mock.Anything, mock.Anything, mock.Anything).Return(mockRows, nil).Once()
+		mockRows := new(db.MockRows)
+		mockPool.On("Query", mock.Anything, mock.Anything, mock.MatchedBy(func(args []interface{}) bool {
+			return len(args) == 1 && args[0] == adID
+		})).Return(mockRows, nil)
 
 		mockRows.On("Next").Return(true).Once()
-		// FIX: Use mock.AnythingOfType("[]interface {}") for Scan's variadic dest arguments
-		// And correctly cast args[N] to ([]interface{}) to access the pointers
-		mockRows.On("Scan", mock.Anything).Run(func(args mock.Arguments) {
-			dest := args.Get(0).([]interface{})
-			*(dest[0].(*int)) = 1
-			*(dest[1].(*int)) = adID
-			*(dest[2].(*string)) = "file.jpg"
-			*(dest[3].(*string)) = "http://example.com/file.jpg"
-			*(dest[4].(*time.Time)) = time.Now()
-		}).Return(nil).Once() // Add .Once() for clarity and strictness
+		mockRows.On("Scan",
+			mock.AnythingOfType("*int"),
+			mock.AnythingOfType("*int"),
+			mock.AnythingOfType("*string"),
+			mock.AnythingOfType("*string"),
+			mock.AnythingOfType("*time.Time"),
+		).Run(func(args mock.Arguments) {
+			*(args[0].(*int)) = 1
+			*(args[1].(*int)) = adID
+			*(args[2].(*string)) = "file.jpg"
+			*(args[3].(*string)) = "http://example.com/file.jpg"
+			*(args[4].(*time.Time)) = time.Now()
+		}).Return(nil).Once()
 
 		mockRows.On("Next").Return(false).Once()
-		mockRows.On("Err").Return(nil).Once() // Add .Once()
-		mockRows.On("Close").Return().Once()  // Add .Once()
+		mockRows.On("Err").Return(nil).Once()
+		mockRows.On("Close").Return().Once()
 
 		files, err := repo.GetAll(context.Background(), adID)
 		assert.NoError(t, err)
@@ -137,10 +96,14 @@ func TestAdFileRepo_Create(t *testing.T) {
 	t.Run("query error", func(t *testing.T) {
 		mockPool := new(db.MockPool)
 		defer mockPool.AssertExpectations(t)
+
 		repo := NewAdFileRepo(mockPool)
 
-		// FIX: Pass adID as a slice of interface{} for variadic argument matching
-		mockPool.On("Query", mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("query error")).Once()
+		mockRows := new(db.MockRows)
+		mockPool.On("Query", mock.Anything, mock.Anything,
+			mock.MatchedBy(func(args []interface{}) bool {
+				return len(args) == 1 && args[0] == 1
+			})).Return(mockRows, errors.New("query error"))
 
 		files, err := repo.GetAll(context.Background(), 1)
 		assert.Error(t, err)
@@ -148,4 +111,52 @@ func TestAdFileRepo_Create(t *testing.T) {
 		assert.Equal(t, repoerr.ErrFileSelection, err)
 	})
 }
-*/
+
+func TestAdFileRepo_Delete(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		defer mockPool.AssertExpectations(t)
+
+		repo := NewAdFileRepo(mockPool)
+		file := &entities.AdFile{ID: 1, AdID: 1}
+
+		mockRow := new(db.MockRow)
+		mockRow.On("Scan", mock.AnythingOfType("*string")).Run(func(args mock.Arguments) {
+			*(args[0].(*string)) = "http://example.com/file.jpg"
+		}).Return(nil)
+		mockPool.On("QueryRow", mock.Anything, mock.Anything,
+			mock.MatchedBy(func(arg interface{}) bool {
+				if args, ok := arg.([]interface{}); ok && len(args) == 1 {
+					if id, ok := args[0].(int); ok {
+						return id == file.ID
+					}
+				}
+				return false
+			})).Return(mockRow)
+		mockPool.On("Exec", mock.Anything, mock.Anything, []interface{}{"http://example.com/file.jpg", 1}).
+			Return(pgconn.NewCommandTag("DELETE 1"), nil)
+
+		url, err := repo.Delete(context.Background(), file)
+		assert.NoError(t, err)
+		assert.Equal(t, "http://example.com/file.jpg", url)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		defer mockPool.AssertExpectations(t)
+
+		repo := NewAdFileRepo(mockPool)
+		file := &entities.AdFile{ID: 1, AdID: 1}
+
+		mockRow := new(db.MockRow)
+		mockRow.On("Scan", mock.Anything).Return(pgx.ErrNoRows)
+		mockPool.On("QueryRow", mock.Anything, mock.Anything,
+			mock.MatchedBy(func(args []interface{}) bool {
+				return len(args) == 1 && args[0] == file.ID
+			})).Return(mockRow)
+
+		url, err := repo.Delete(context.Background(), file)
+		assert.Equal(t, "", url)
+		assert.Equal(t, repoerr.ErrFileNotFound, err)
+	})
+}
