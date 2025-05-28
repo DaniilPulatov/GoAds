@@ -88,6 +88,5 @@ func (s *Server) Init() {
 		adminGroup.DELETE("/ads/:id", s.adminHandler.DeleteAd)
 		adminGroup.POST("/ads/:id/approve", s.adminHandler.Approve)
 		adminGroup.POST("/ads/:id/reject", s.adminHandler.Reject)
-		adminGroup.DELETE("/ads/:id/image/:fid", s.adminHandler.DeleteImage)
 	}
 }
