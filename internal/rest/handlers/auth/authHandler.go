@@ -7,6 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Register godoc
+// @Summary Register a new user
+// @Description Register a new user with phone number and password
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body entities.User true "User registration payload"
+// @Success 201 {object} map[string]string "user registered successfully"
+// @Failure 400 {object} map[string]string "invalid request body"
+// @Failure 500 {object} map[string]string "failed to register user"
+// @Router /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var user entities.User
 
@@ -23,6 +34,17 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	c.JSON(201, gin.H{"message": "user registered successfully"})
 }
 
+// Login godoc
+// @Summary User login
+// @Description Authenticate user and return access and refresh tokens
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param credentials body AuthRequest true "User login credentials"
+// @Success 200 {object} LoginResponse
+// @Failure 400 {object} map[string]string "invalid request body"
+// @Failure 401 {object} map[string]string "failed to login"
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var loginReq AuthRequest
 

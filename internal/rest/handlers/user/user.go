@@ -9,6 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateDraft godoc
+// @Summary      Create a new ad draft
+// @Description  Allows a user to create an ad draft
+// @Tags         user-ads
+// @Accept       json
+// @Produce      json
+// @Param        ad  body      entities.Ad  true  "Ad draft"
+// @Success      201  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /user/ads [post]
 func (h *UserHandler) CreateDraft(c *gin.Context) {
 	var ad entities.Ad
 	if err := c.ShouldBindJSON(&ad); err != nil {
@@ -25,6 +36,13 @@ func (h *UserHandler) CreateDraft(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "ad draft created successfully"})
 }
 
+// GetMyAds godoc
+// @Summary      Get all ads created by the authenticated user
+// @Tags         user-ads
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]string
+// @Router       /user/ads [get]
 func (h *UserHandler) GetMyAds(c *gin.Context) {
 	userID := c.GetString("user_id")
 	ads, err := h.userService.GetMyAds(c.Request.Context(), userID)
@@ -36,6 +54,17 @@ func (h *UserHandler) GetMyAds(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"ads": ads})
 }
 
+// UpdateMyAd godoc
+// @Summary      Update a user's own ad
+// @Tags         user-ads
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int          true  "Ad ID"
+// @Param        ad   body      entities.Ad  true  "Updated ad data"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /user/ads/{id} [put]
 func (h *UserHandler) UpdateMyAd(c *gin.Context) {
 	var ad entities.Ad
 	adIDStr := c.Param("id")
@@ -60,6 +89,15 @@ func (h *UserHandler) UpdateMyAd(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "ad updated successfully"})
 }
 
+// DeleteMyAd godoc
+// @Summary      Delete a user's own ad
+// @Tags         user-ads
+// @Produce      json
+// @Param        id   path      int  true  "Ad ID"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /user/ads/{id} [delete]
 func (h *UserHandler) DeleteMyAd(c *gin.Context) {
 	adIDStr := c.Param("id")
 	adID, err := strconv.Atoi(adIDStr)
@@ -76,7 +114,15 @@ func (h *UserHandler) DeleteMyAd(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "ad deleted successfully"})
 }
 
-// May delete userID for this
+// SubmitForModeration godoc
+// @Summary      Submit an ad for moderation
+// @Tags         user-ads
+// @Produce      json
+// @Param        id   path      int  true  "Ad ID"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /user/ads/{id}/submit [post]
 func (h *UserHandler) SubmitForModeration(c *gin.Context) {
 	adIDStr := c.Param("id")
 	adID, err := strconv.Atoi(adIDStr)

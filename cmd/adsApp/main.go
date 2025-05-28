@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"os"
 
+	_ "ads-service/docs"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"go.uber.org/dig"

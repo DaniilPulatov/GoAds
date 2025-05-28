@@ -1,0 +1,449 @@
+basePath: /api/v1
+definitions:
+  admin.RejectionRequest:
+    properties:
+      reason:
+        type: string
+    required:
+    - reason
+    type: object
+  auth.AuthRequest:
+    properties:
+      password:
+        type: string
+      phone:
+        type: string
+    required:
+    - password
+    - phone
+    type: object
+  auth.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  entities.Ad:
+    properties:
+      authorID:
+        type: string
+      categoryID:
+        type: integer
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      rejectionReason:
+        type: string
+      status:
+        $ref: '#/definitions/entities.Status'
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  entities.Role:
+    enum:
+    - admin
+    - user
+    type: string
+    x-enum-varnames:
+    - RoleAdmin
+    - RoleUser
+  entities.Status:
+    enum:
+    - pending
+    - approved
+    - rejected
+    type: string
+    x-enum-varnames:
+    - StatusPending
+    - StatusApproved
+    - StatusRejected
+  entities.User:
+    properties:
+      createdAt:
+        type: string
+      fname:
+        type: string
+      id:
+        type: string
+      lname:
+        type: string
+      password:
+        type: string
+      passwordHash:
+        type: string
+      phone:
+        type: string
+      role:
+        $ref: '#/definitions/entities.Role'
+      updatedAt:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: d.pulatov@student.inha.uz, s.raxmatov@student.inha.uz
+    name: Support
+  description: REST API for ads project
+  title: My Ads API
+  version: "1.0"
+paths:
+  /admin/ads:
+    get:
+      description: Get all ads in the system (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all ads
+      tags:
+      - admin
+  /admin/ads/{id}/approve:
+    post:
+      description: Approve ad by ID (admin only)
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Approve ad
+      tags:
+      - admin
+  /admin/ads/{id}/reject:
+    post:
+      consumes:
+      - application/json
+      description: Reject ad by ID with a reason (admin only)
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Rejection reason
+        in: body
+        name: rejection
+        required: true
+        schema:
+          $ref: '#/definitions/admin.RejectionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Reject ad
+      tags:
+      - admin
+  /admin/statistics:
+    get:
+      description: Get aggregated system statistics (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get statistics
+      tags:
+      - admin
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return access and refresh tokens
+      parameters:
+      - description: User login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/auth.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+        "400":
+          description: invalid request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: failed to login
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User login
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with phone number and password
+      parameters:
+      - description: User registration payload
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/entities.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: user registered successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: invalid request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: failed to register user
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - Auth
+  /user/ads:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all ads created by the authenticated user
+      tags:
+      - user-ads
+    post:
+      consumes:
+      - application/json
+      description: Allows a user to create an ad draft
+      parameters:
+      - description: Ad draft
+        in: body
+        name: ad
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Ad'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new ad draft
+      tags:
+      - user-ads
+  /user/ads/{id}:
+    delete:
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a user's own ad
+      tags:
+      - user-ads
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated ad data
+        in: body
+        name: ad
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Ad'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a user's own ad
+      tags:
+      - user-ads
+  /user/ads/{id}/submit:
+    post:
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Submit an ad for moderation
+      tags:
+      - user-ads
+schemes:
+- http
+swagger: "2.0"

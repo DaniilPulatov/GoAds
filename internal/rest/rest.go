@@ -1,3 +1,15 @@
+// @title           My Ads API
+// @version         1.0
+// @description     REST API for ads project
+
+// @contact.name   Support
+// @contact.email  d.pulatov@student.inha.uz, s.raxmatov@student.inha.uz
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @schemes http
+
 package rest
 
 import (
@@ -9,6 +21,9 @@ import (
 	"ads-service/internal/rest/middleware"
 
 	"github.com/gin-gonic/gin"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Server struct {
@@ -40,6 +55,8 @@ func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (s *Server) Init() {
+	s.mux.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	const basePath = "/api/v1"
 	baseGroup := s.mux.Group(basePath)
 
