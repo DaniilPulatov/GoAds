@@ -33,10 +33,10 @@ CREATE TABLE IF NOT EXISTS ads (
     description TEXT NOT NULL,
     category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
     status ad_status NOT NULL DEFAULT 'pending',
-    rejection_reason TEXT DEFAULT,
+    rejection_reason TEXT DEFAULT 'empty',
     is_active BOOLEAN NOT NULL DEFAULT false, -- send for moderation to make it true
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS ad_files (
@@ -47,6 +47,4 @@ CREATE TABLE IF NOT EXISTS ad_files (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-
 INSERT INTO categories(title) VALUES('cars');
-INSERT INTO categories(title) VALUES('service');
