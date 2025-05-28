@@ -12,6 +12,7 @@ import (
 
 func (m *Middleware) UserAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log.Println("YOU ARE HERE~!!!!")
 		authHeader := c.GetHeader("Authorization")
 		data := strings.Split(authHeader, " ")
 		if len(data) != 2 || data[0] != "Bearer" {

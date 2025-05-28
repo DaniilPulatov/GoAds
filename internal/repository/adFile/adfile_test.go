@@ -133,9 +133,8 @@ func TestAdFileRepo_Delete(t *testing.T) {
 				}
 				return false
 			})).Return(mockRow)
-		mockPool.On("Exec", mock.Anything, mock.Anything,
-			[]interface{}{file.ID, file.AdID}).
-			Return(pgconn.CommandTag{}, nil)
+		mockPool.On("Exec", mock.Anything, mock.Anything, []interface{}{"http://example.com/file.jpg", 1}).
+			Return(pgconn.NewCommandTag("DELETE 1"), nil)
 
 		url, err := repo.Delete(context.Background(), file)
 		assert.NoError(t, err)

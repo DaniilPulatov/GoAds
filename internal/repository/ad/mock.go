@@ -46,7 +46,10 @@ func (m *MockAdRepo) Create(ctx context.Context, ad *entities.Ad) error {
 
 func (m *MockAdRepo) GetByID(ctx context.Context, id int) (*entities.Ad, error) {
 	args := m.Called(ctx, id)
-	return args.Get(0).(*entities.Ad), args.Error(1)
+	if ad, ok := args.Get(0).(*entities.Ad); ok || args.Get(0) == nil {
+		return ad, args.Error(1)
+	}
+	return nil, args.Error(1)
 }
 
 func (m *MockAdRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, error) {

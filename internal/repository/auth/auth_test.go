@@ -77,7 +77,11 @@ func TestGetToken_Success(t *testing.T) {
 	actualToken, err := mockRepo.Get(ctx, "user-123")
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectedToken, actualToken)
+	assert.Equal(t, &entities.Token{
+		UserID:    expectedToken.UserID,
+		Token:     expectedToken.Token,
+		ExpiresAt: expectedToken.ExpiresAt,
+	}, actualToken)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -99,7 +103,7 @@ func TestUpdateToken_Success(t *testing.T) {
 	mockRepo := new(AuthRepositoryMock)
 	ctx := context.Background()
 
-	rtoken := Token{
+	rtoken := entities.Token{
 		UserID:    "user-123",
 		Token:     "updated-token",
 		ExpiresAt: time.Now().Add(48 * time.Hour),
@@ -117,7 +121,7 @@ func TestUpdateToken_Error(t *testing.T) {
 	mockRepo := new(AuthRepositoryMock)
 	ctx := context.Background()
 
-	rtoken := Token{
+	rtoken := entities.Token{
 		UserID:    "user-123",
 		Token:     "",
 		ExpiresAt: time.Now().Add(48 * time.Hour), // Пустой токен
