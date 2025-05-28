@@ -13,6 +13,7 @@ import (
 	adminService "ads-service/internal/usecase/admin"
 	authService "ads-service/internal/usecase/auth"
 	userService "ads-service/internal/usecase/user"
+	customLogger "ads-service/pkg/logger"
 	"time"
 
 	"ads-service/internal/rest"
@@ -54,6 +55,9 @@ func main() {
 
 func execute(host, port, dsn string) error {
 	deps := []interface{}{
+		func() (customLogger.Logger, error) {
+			return customLogger.NewLogger()
+		},
 		func() (db.Pool, error) {
 			return db.NewDB(dsn)
 		},

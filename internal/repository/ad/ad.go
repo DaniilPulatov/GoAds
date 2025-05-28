@@ -18,10 +18,10 @@ func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
 		ad.AuthorID, ad.Title, ad.Description, ad.CategoryID,
 		ad.Status, ad.IsActive, ad.CreatedAt, ad.UpdatedAt)
 	if err != nil {
-		log.Println("while inserting into ads:", err)
+		r.logger.ERROR("while inserting into ads:", err)
 		return repoerr.ErrInsert
 	}
-
+	r.logger.INFO("Ad created successfully", ad.ID)
 	return nil
 }
 
@@ -37,13 +37,13 @@ func (r adRepo) GetByID(ctx context.Context, id int) (*entities.Ad, error) {
 			&ad.IsActive, &ad.CreatedAt, &ad.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			log.Println("No ad found with ID:", id)
+			r.logger.ERROR("No ad found with ID: ", id)
 			return nil, repoerr.ErrAdNotFound
 		}
-		log.Println("Error selecting ad:", err)
+		r.logger.ERROR("Error selecting ad: ", err)
 		return nil, repoerr.ErrGettingAdByID
 	}
-
+	r.logger.INFO("AD retrived by ID successfully, ID: ", ad.ID)
 	return &ad, nil
 }
 
@@ -55,10 +55,9 @@ func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, 
 		FROM ads
 		WHERE author_id = $1`, userID)
 	if err != nil {
-		log.Println("Error getting user ads:", err)
+		r.logger.ERROR("Error getting user ads: ", err)
 		return nil, repoerr.ErrGettingAdsByUserID
 	}
-
 	defer rows.Close()
 
 	var ads []entities.Ad
@@ -73,10 +72,10 @@ func (r adRepo) GetByUserID(ctx context.Context, userID string) ([]entities.Ad, 
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Println("Error iterating rows:", err)
+		r.logger.ERROR("Error iterating rows:", err)
 		return nil, repoerr.ErrScan
 	}
-
+	r.logger.INFO("ADs retrived by user ID successfully, user ID: ", userID)
 	return ads, nil
 }
 
@@ -88,7 +87,7 @@ func (r adRepo) GetAll(ctx context.Context) ([]entities.Ad, error) {
 		FROM ads
 	`)
 	if err != nil {
-		log.Println("Error getting ads:", err)
+		r.logger.ERROR("Error getting ads:", err)
 		return nil, repoerr.ErrGettingAllAds
 	}
 
@@ -99,17 +98,17 @@ func (r adRepo) GetAll(ctx context.Context) ([]entities.Ad, error) {
 		var ad entities.Ad
 		if err = rows.Scan(&ad.ID, &ad.AuthorID, &ad.Title, &ad.Description, &ad.CategoryID, &ad.Status,
 			&ad.IsActive, &ad.CreatedAt, &ad.UpdatedAt); err != nil {
-			log.Println("Scan error:", err)
+			r.logger.ERROR("Scan error: ", err)
 			return nil, repoerr.ErrScan
 		}
 		ads = append(ads, ad)
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Println("Error iterating rows:", err)
+		r.logger.ERROR("Error iterating rows: ", err)
 		return nil, repoerr.ErrScan
 	}
-
+	r.logger.INFO("ADs retrived successfully ")
 	return ads, nil
 }
 
@@ -121,15 +120,15 @@ func (r adRepo) Update(ctx context.Context, ad *entities.Ad) error {
 		WHERE id = $7;`, ad.Title, ad.Description, ad.CategoryID,
 		ad.Status, ad.IsActive, ad.UpdatedAt, ad.ID)
 	if err != nil {
-		log.Println("Error updating ad:", err)
+		r.logger.ERROR("Error updating ad: ", err)
 		return repoerr.ErrUpdate
 	}
 
 	if row.RowsAffected() == 0 {
-		log.Println("No ad found with ID:", ad.ID)
+		r.logger.ERROR("No ad found with ID: ", ad.ID)
 		return repoerr.ErrAdNotFound
 	}
-
+	r.logger.INFO("AD updated successfully, ID: ", ad.ID)
 	return nil
 }
 
@@ -138,14 +137,14 @@ func (r adRepo) Delete(ctx context.Context, id int) error {
 		DELETE FROM ads
 		WHERE id = $1;`, id)
 	if err != nil {
-		log.Println("Error deleting ad:", err)
+		r.logger.ERROR("Error deleting ad: ", err)
 		return repoerr.ErrDelete
 	}
 	if row.RowsAffected() == 0 {
-		log.Println("No ad found with ID:", id)
+		r.logger.ERROR("No ad found with ID: ", id)
 		return repoerr.ErrAdNotFound
 	}
-
+	r.logger.INFO("Ad deleted successfully: ", id)
 	return nil
 }
 
@@ -156,14 +155,14 @@ func (r adRepo) Approve(ctx context.Context, id int, ad *entities.Ad) error {
 		WHERE id = $4;`,
 		ad.Status, ad.IsActive, ad.UpdatedAt, id)
 	if err != nil {
-		log.Println("Error approving ad:", err)
+		r.logger.ERROR("Error approving ad: ", err)
 		return repoerr.ErrApproval
 	}
 	if row.RowsAffected() == 0 {
-		log.Println("No ad found with ID:", id)
+		r.logger.ERROR("No ad found with ID: ", id)
 		return repoerr.ErrAdNotFound
 	}
-
+	r.logger.INFO("Ad approved successfully, ID: ", id)
 	return nil
 }
 
@@ -173,14 +172,14 @@ func (r adRepo) Reject(ctx context.Context, id int, ad *entities.Ad) error {
 		SET status = $1, rejection_reason = $2, is_active = $3, updated_at = $4
 		WHERE id = $5;`, ad.Status, ad.RejectionReason, ad.IsActive, ad.UpdatedAt, id)
 	if err != nil {
-		log.Println("Error rejecting ad:", err)
+		r.logger.ERROR("Error rejecting ad: ", err)
 		return repoerr.ErrRejection
 	}
 	if row.RowsAffected() == 0 {
-		log.Println("No ad found with ID:", id)
+		r.logger.ERROR("No ad found with ID: ", id)
 		return repoerr.ErrAdNotFound
 	}
-
+	r.logger.INFO("Ad rejected successfully, ID: ", id)
 	return nil
 }
 
@@ -201,9 +200,9 @@ func (r adRepo) GetStatistics(ctx context.Context) (entities.AdStatistics, error
 		&statistics.Rejected,
 	)
 	if err != nil {
-		log.Println("Error getting ad statistics:", err)
+		r.logger.ERROR("Error getting ad statistics: ", err)
 		return statistics, repoerr.ErrGettingStatistics
 	}
-
+	r.logger.INFO("Statistics retrieved successfully ")
 	return statistics, nil
 }

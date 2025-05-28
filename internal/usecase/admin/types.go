@@ -4,6 +4,7 @@ import (
 	"ads-service/internal/domain/entities"
 	"ads-service/internal/repository/ad"
 	"ads-service/internal/repository/user"
+	customLogger "ads-service/pkg/logger"
 	"context"
 )
 
@@ -25,12 +26,14 @@ type service struct {
 	// fileDel  FileDeleter
 	adRepo   ad.AdRepository
 	userRepo user.UserRepository
+	logger   customLogger.Logger
 }
 
-func NewAdminService(adRepo ad.AdRepository, userRepo user.UserRepository) AdminAdvertisementService {
+func NewAdminService(adRepo ad.AdRepository, userRepo user.UserRepository, logTool customLogger.Logger) AdminAdvertisementService {
 	return &service{
 		// fileDel: fileDel,
 		adRepo:   adRepo,
 		userRepo: userRepo,
+		logger:   logTool,
 	}
 }

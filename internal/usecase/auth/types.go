@@ -4,6 +4,7 @@ import (
 	"ads-service/internal/domain/entities"
 	"ads-service/internal/repository/auth"
 	"ads-service/internal/repository/user"
+	customLogger "ads-service/pkg/logger"
 	"context"
 )
 
@@ -17,10 +18,12 @@ type AuthService interface {
 type userAuthService struct {
 	userRepo user.UserRepository
 	authRepo auth.AuthRepository
+	logger   customLogger.Logger
 }
 
-func NewAuthService(userRepo user.UserRepository, authRepo auth.AuthRepository) AuthService {
+func NewAuthService(userRepo user.UserRepository, authRepo auth.AuthRepository, logger customLogger.Logger) AuthService {
 	return &userAuthService{
+		logger:   logger,
 		userRepo: userRepo,
 		authRepo: authRepo,
 	}

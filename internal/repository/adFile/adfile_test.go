@@ -4,6 +4,7 @@ import (
 	"ads-service/internal/domain/entities"
 	"ads-service/internal/errs/repoerr"
 	"ads-service/pkg/db"
+	customLogger "ads-service/pkg/logger"
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5"
@@ -19,7 +20,7 @@ func TestAdFileRepo_Create(t *testing.T) {
 		mockPool := new(db.MockPool)
 		defer mockPool.AssertExpectations(t)
 
-		repo := NewAdFileRepo(mockPool)
+		repo := NewAdFileRepo(mockPool, customLogger.Logger{})
 		file := &entities.AdFile{AdID: 1, FileName: "file.jpg", URL: "http://example.com/file.jpg"}
 
 		mockRow := new(db.MockRow)
@@ -39,7 +40,7 @@ func TestAdFileRepo_Create(t *testing.T) {
 		mockPool := new(db.MockPool)
 		defer mockPool.AssertExpectations(t)
 
-		repo := NewAdFileRepo(mockPool)
+		repo := NewAdFileRepo(mockPool, customLogger.Logger{})
 		file := &entities.AdFile{}
 
 		mockRow := new(db.MockRow)
@@ -60,7 +61,7 @@ func TestAdFileRepo_GetAll(t *testing.T) {
 		mockPool := new(db.MockPool)
 		defer mockPool.AssertExpectations(t)
 
-		repo := NewAdFileRepo(mockPool)
+		repo := NewAdFileRepo(mockPool, customLogger.Logger{})
 
 		adID := 1
 		mockRows := new(db.MockRows)
@@ -97,7 +98,7 @@ func TestAdFileRepo_GetAll(t *testing.T) {
 		mockPool := new(db.MockPool)
 		defer mockPool.AssertExpectations(t)
 
-		repo := NewAdFileRepo(mockPool)
+		repo := NewAdFileRepo(mockPool, customLogger.Logger{})
 
 		mockRows := new(db.MockRows)
 		mockPool.On("Query", mock.Anything, mock.Anything,
@@ -117,7 +118,7 @@ func TestAdFileRepo_Delete(t *testing.T) {
 		mockPool := new(db.MockPool)
 		defer mockPool.AssertExpectations(t)
 
-		repo := NewAdFileRepo(mockPool)
+		repo := NewAdFileRepo(mockPool, customLogger.Logger{})
 		file := &entities.AdFile{ID: 1, AdID: 1}
 
 		mockRow := new(db.MockRow)
@@ -145,7 +146,7 @@ func TestAdFileRepo_Delete(t *testing.T) {
 		mockPool := new(db.MockPool)
 		defer mockPool.AssertExpectations(t)
 
-		repo := NewAdFileRepo(mockPool)
+		repo := NewAdFileRepo(mockPool, customLogger.Logger{})
 		file := &entities.AdFile{ID: 1, AdID: 1}
 
 		mockRow := new(db.MockRow)

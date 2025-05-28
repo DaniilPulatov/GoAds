@@ -4,6 +4,7 @@ import (
 	"ads-service/internal/domain/entities"
 	"ads-service/internal/errs/repoerr"
 	"ads-service/pkg/db"
+	customLogger "ads-service/pkg/logger"
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5"
@@ -511,7 +512,7 @@ func TestUserRepo_UpdateUser_Args(t *testing.T) {
 		mockPool := new(db.MockPool)
 		defer mockPool.AssertExpectations(t)
 
-		repo := NewUserRepo(mockPool)
+		repo := NewUserRepo(mockPool, customLogger.Logger{})
 
 		user := &entities.User{
 			ID:    "id",

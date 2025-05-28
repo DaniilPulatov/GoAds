@@ -9,7 +9,6 @@ import (
 
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 )
@@ -19,6 +18,7 @@ const fileDirPerm = 0o750 // Permissions for the directory where ad images are s
 func (s *service) CreateDraft(ctx context.Context, userID string, adEntity *entities.Ad) error {
 	err := utils.ValidateAd(adEntity)
 	if err != nil {
+		s.logger.ERROR(err)
 		return usecaseerr.ErrInvalidParams
 	}
 
@@ -31,7 +31,7 @@ func (s *service) CreateDraft(ctx context.Context, userID string, adEntity *enti
 
 	err = s.repo.Create(ctx, adEntity)
 	if err != nil {
-		log.Println("error creating ad:", err)
+		s.logger.ERROR("error creating ad:", err)
 		return repoerr.ErrInsert
 	}
 
@@ -41,29 +41,30 @@ func (s *service) CreateDraft(ctx context.Context, userID string, adEntity *enti
 func (s *service) GetMyAds(ctx context.Context, userID string) ([]entities.Ad, error) {
 	ads, err := s.repo.GetByUserID(ctx, userID)
 	if err != nil {
+		s.logger.ERROR("error getting my ads: ", err)
 		return nil, repoerr.ErrGettingAdsByUserID
 	}
 	if len(ads) == 0 {
+		s.logger.ERROR("user not found")
 		return nil, usecaseerr.ErrUserNotHaveAds
 	}
-
+	s.logger.INFO("ads retrieved successfully: ")
 	return ads, nil
 }
 
 func (s *service) UpdateMyAd(ctx context.Context, userID string, adEntity *entities.Ad) error {
-	log.Println(adEntity.Title)
-	log.Println(adEntity.ID)
-	log.Println(adEntity.Description)
-
 	ad, err := s.repo.GetByID(ctx, adEntity.ID)
 	if err != nil {
+		s.logger.ERROR("error getting my ad by ID: ", err)
 		return usecaseerr.ErrGettingAdByID
 	}
 	if ad == nil || ad.AuthorID != userID {
+		s.logger.ERROR("user not found")
 		return usecaseerr.ErrAccessDenied
 	}
 
 	if err = utils.ValidateAd(adEntity); err != nil {
+		s.logger.ERROR(err)
 		return usecaseerr.ErrInvalidParams
 	}
 
@@ -73,34 +74,40 @@ func (s *service) UpdateMyAd(ctx context.Context, userID string, adEntity *entit
 	ad.UpdatedAt = time.Now().UTC()
 
 	if err = s.repo.Update(ctx, ad); err != nil {
+		s.logger.ERROR("error updating my ad: ", err)
 		return repoerr.ErrUpdate
 	}
-
+	s.logger.INFO("my ad successfully updated")
 	return nil
 }
 
 func (s *service) DeleteMyAd(ctx context.Context, userID string, adID int) error {
 	ad, err := s.repo.GetByID(ctx, adID)
 	if err != nil {
+		s.logger.ERROR("error getting my ad by ID: ", err)
 		return usecaseerr.ErrGettingAdByID
 	}
 	if ad == nil || ad.AuthorID != userID {
+		s.logger.ERROR("user not found")
 		return usecaseerr.ErrAccessDenied
 	}
 
 	if err = s.repo.Delete(ctx, adID); err != nil {
+		s.logger.ERROR("error deleting my ad: ", err)
 		return repoerr.ErrDelete
 	}
-
+	s.logger.INFO("my ad successfully deleted")
 	return nil
 }
 
 func (s *service) SubmitForModeration(ctx context.Context, userID string, adID int) error {
 	ad, err := s.repo.GetByID(ctx, adID)
 	if err != nil {
+		s.logger.ERROR("error submitting ad:", err)
 		return usecaseerr.ErrGettingAdByID
 	}
 	if ad == nil || ad.AuthorID != userID {
+		s.logger.ERROR("error submitting ad: invalid user")
 		return usecaseerr.ErrAccessDenied
 	}
 
@@ -109,24 +116,25 @@ func (s *service) SubmitForModeration(ctx context.Context, userID string, adID i
 
 	err = s.repo.Update(ctx, ad)
 	if err != nil {
+		s.logger.ERROR("error submitting ad:", err)
 		return usecaseerr.ErrApprovingAd
 	}
-
+	s.logger.INFO("my ad successfully submitted")
 	return nil
 }
 
 func (s *service) AddImageToMyAd(ctx context.Context, userID string, file *entities.AdFile) error {
 	ad, err := s.repo.GetByID(ctx, file.AdID)
 	if err != nil {
-		log.Printf("error getting ads by user ID %s: %v", userID, err)
+		s.logger.ERROR("error getting ads by user ID: ", userID, "\n", err)
 		return repoerr.ErrSelection
 	}
 	if ad != nil && ad.AuthorID != userID {
-		log.Println("error: user does not own the ad")
+		s.logger.ERROR("error: user does not own the ad")
 		return usecaseerr.ErrAccessDenied
 	}
 	if !checkIfFileAllowed(file.FileName) {
-		log.Printf("error: file %s is not allowed", file.FileName)
+		s.logger.ERROR("invalid format of the file:", file.FileName)
 		return usecaseerr.ErrFileNotAllowed
 	}
 
@@ -136,60 +144,57 @@ func (s *service) AddImageToMyAd(ctx context.Context, userID string, file *entit
 		return fmt.Errorf("failed to create directory: %v", err)
 	}
 
-	// TODO: delete logs after debugging
-	log.Printf("dirPath: %s", dirPath)
-	log.Printf("file.FileName: %s", file.FileName)
-	file.URL = dirPath + "/" + file.FileName
-	log.Printf("file.URL: %s", file.URL)
 	_, err = s.fileRepo.Create(ctx, file)
 	if err != nil {
-		log.Printf("error adding image to ad %d: %v", file.AdID, err)
+		s.logger.ERROR("error adding image to ad ", file.AdID, "\n", err)
 		return repoerr.ErrFileInsertion
 	}
+
+	s.logger.INFO("ad successfully added image to ad ", file.AdID)
 	return nil
 }
 
 func (s *service) DeleteMyAdImage(ctx context.Context, userID string, file *entities.AdFile) error {
 	ad, err := s.repo.GetByID(ctx, file.AdID)
 	if err != nil {
-		log.Printf("error getting ad by ID %d: %v", file.AdID, err)
+		s.logger.ERROR("error getting ad by ID: ", file.AdID, "\n", err)
 		return repoerr.ErrSelection
 	}
 	if ad != nil && ad.AuthorID != userID {
-		log.Println("error: user does not own the ad")
+		s.logger.ERROR("error: user does not own the ad")
 		return usecaseerr.ErrAccessDenied
 	}
 	url, err := s.fileRepo.Delete(ctx, file)
 	if err != nil {
-		log.Printf("error deleting image from ad %d: %v", file.AdID, err)
+		s.logger.ERROR("error deleting image from ad: ", file.AdID, "\n", err)
 		return repoerr.ErrFileDeletion
 	}
-	log.Println("image deleted from file db successfully")
+	s.logger.ERROR("image deleted from file db successfully")
 
 	err = os.Remove(url) // Remove the file from the filesystem
 	if err != nil {
-		log.Printf("error removing file from filesystem: %v", err)
+		s.logger.ERROR("error removing file from filesystem: ", err)
 	}
-
+	s.logger.INFO("ad image successfully deleted")
 	return nil
 }
 
 func (s *service) GetImagesToMyAd(ctx context.Context, userID string, adID int) ([]entities.AdFile, error) {
 	ad, err := s.repo.GetByID(ctx, adID)
 	if err != nil {
-		log.Printf("error getting ad by ID %d: %v", adID, err)
+		s.logger.ERROR("error getting ad by ID ", adID, "\n", err)
 		return nil, repoerr.ErrSelection
 	}
 	if ad != nil && ad.AuthorID != userID {
-		log.Println("error: user does not own the ad")
+		s.logger.ERROR("error: user does not own the ad")
 		return nil, usecaseerr.ErrAccessDenied
 	}
 	files, err := s.fileRepo.GetAll(ctx, adID)
 	if err != nil {
-		log.Printf("error getting images for ad %d: %v", adID, err)
+		s.logger.ERROR("error getting images for ad with ID", adID, "\n", err)
 		return nil, repoerr.ErrSelection
 	}
-	log.Printf("found %d images for ad %d", len(files), adID)
+	s.logger.INFO("found ", len(files), " images for ad with id: ", adID)
 	return files, nil
 }
 

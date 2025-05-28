@@ -1,0 +1,17 @@
+2025-05-29T02:19:51+05:00 [INFO] Successfully logged in user:+998445959030
+2025-05-29T02:20:05+05:00 [ERROR] User already exists with phone:+998445959030
+2025-05-29T02:20:23+05:00 [ERROR] User already exists with phone:+998445959030
+2025-05-29T03:09:01+05:00 [INFO] Number of users found:1
+2025-05-29T03:09:01+05:00 [ERROR] User already exists with phone:+998445959033
+2025-05-29T03:09:07+05:00 [INFO] User successfully retrieved
+2025-05-29T03:09:07+05:00 [ERROR] Password mismatch for user:+998445959033
+2025-05-29T03:09:35+05:00 [ERROR] Error selecting user by phone:no rows in result set
+2025-05-29T03:09:35+05:00 [ERROR] User not found
+2025-05-29T03:09:35+05:00 [ERROR] Error getting user by phone:no rows in result set
+2025-05-29T03:10:04+05:00 [INFO] Number of users found:0
+2025-05-29T03:10:04+05:00 [INFO] Create user successfully
+2025-05-29T03:10:04+05:00 [INFO] User registered successfully:+998445959077
+2025-05-29T03:10:10+05:00 [INFO] User successfully retrieved
+2025-05-29T03:10:10+05:00 [INFO] Delete token successfully
+2025-05-29T03:10:10+05:00 [INFO] Add token successfully
+2025-05-29T03:10:10+05:00 [INFO] Successfully logged in user:+998445959077

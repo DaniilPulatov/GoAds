@@ -4,6 +4,7 @@ import (
 	"ads-service/internal/domain/entities"
 	adRepo "ads-service/internal/repository/ad"
 	adfile "ads-service/internal/repository/adFile"
+	customLogger "ads-service/pkg/logger"
 	"context"
 )
 
@@ -21,11 +22,13 @@ type UserAdvertisementService interface {
 type service struct {
 	repo     adRepo.AdRepository
 	fileRepo adfile.AdFileRepository
+	logger   customLogger.Logger
 }
 
-func NewUserService(repo adRepo.AdRepository, fileRepo adfile.AdFileRepository) UserAdvertisementService {
+func NewUserService(repo adRepo.AdRepository, fileRepo adfile.AdFileRepository, logTool customLogger.Logger) UserAdvertisementService {
 	return &service{
 		repo:     repo,
 		fileRepo: fileRepo,
+		logger:   logTool,
 	}
 }

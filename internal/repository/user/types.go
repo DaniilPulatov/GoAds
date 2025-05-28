@@ -3,6 +3,7 @@ package user
 import (
 	"ads-service/internal/domain/entities"
 	"ads-service/pkg/db"
+	customLogger "ads-service/pkg/logger"
 	"context"
 )
 
@@ -17,9 +18,10 @@ type UserRepository interface {
 }
 
 type userRepo struct {
-	db db.Pool
+	db     db.Pool
+	logger customLogger.Logger
 }
 
-func NewUserRepo(pool db.Pool) UserRepository {
-	return &userRepo{db: pool}
+func NewUserRepo(pool db.Pool, logTool customLogger.Logger) UserRepository {
+	return &userRepo{db: pool, logger: logTool}
 }
