@@ -65,7 +65,6 @@ func (s *service) UpdateMyAd(ctx context.Context, userID string, adEntity *entit
 
 	ad.Title = adEntity.Title
 	ad.Description = adEntity.Description
-	ad.Location = adEntity.Location
 	ad.CategoryID = adEntity.CategoryID
 	ad.UpdatedAt = time.Now().UTC()
 

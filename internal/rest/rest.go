@@ -6,7 +6,9 @@ import (
 	"net/http"
 
 	authHandle "ads-service/internal/rest/handlers/auth"
+	userHandle "ads-service/internal/rest/handlers/user"
 	"ads-service/internal/rest/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,6 +24,7 @@ func NewServer(mux *gin.Engine, authHandler *authHandle.AuthHandler, middleware 
 	adminHandler *admin.AdminHandler, userHandler *user.UserHandler) *Server {
 	mux.Use(gin.Recovery())
 	mux.Use(gin.Logger())
+	mux.LoadHTMLGlob("web/*")
 
 	return &Server{
 		mux:          mux,
@@ -38,10 +41,10 @@ func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (s *Server) Init() {
+
 	const (
 		basePath = "/api/v1"
 	)
-
 	baseGroup := s.mux.Group(basePath)
 	baseGroup.Use(s.middleware.UserAuth())
 	{

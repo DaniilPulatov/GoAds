@@ -3,6 +3,7 @@ package user
 import (
 	"ads-service/internal/domain/entities"
 	"ads-service/internal/usecase/user"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -107,7 +108,7 @@ func (h *UserHandler) AddImageToMyAd(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "invalid ad ID: " + err.Error()})
 		return
 	}
-
+	log.Println("ADID IS : ", adID)
 	adFile := &entities.AdFile{
 		FileName: file.Filename,
 		AdID:     intID,

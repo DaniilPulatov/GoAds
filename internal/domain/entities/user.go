@@ -12,14 +12,13 @@ const (
 )
 
 type User struct {
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	Role         Role      `json:"role"`
-	FName        string    `json:"first_name"`
-	LName        string    `json:"last_name"`
-	PasswordHash string    `json:"password_hash" `
-	Password     string    `json:"password" binding:"required"` // temp field for registration
-	// will be removed after rehashing the password
-	Phone string `json:"phone" binding:"required"`
-	ID    string `json:"id"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	Role         Role
+	FName        string
+	LName        string
+	PasswordHash string
+	Password     string
+	Phone        string
+	ID           string
 }

@@ -4,8 +4,8 @@ CREATE EXTENSION "uuid-ossp";
 
 CREATE TABLE users(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    first_name VARCHAR(150),
-    last_name VARCHAR(150),
+    first_name VARCHAR(150) NOT NUll,
+    last_name VARCHAR(150) NOT NULL,
     phone VARCHAR(15) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     role role_type NOT NULL DEFAULT 'user',
@@ -30,18 +30,13 @@ CREATE TABLE IF NOT EXISTS ads (
     id SERIAL PRIMARY KEY,
     author_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
-    description TEXT,
-    location VARCHAR(100),
+    description TEXT NOT NULL,
     category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
     status ad_status NOT NULL DEFAULT 'pending',
-    rejection_reason TEXT DEFAULT NULL,
+    rejection_reason TEXT DEFAULT,
     is_active BOOLEAN NOT NULL DEFAULT false, -- send for moderation to make it true
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CHECK (
-        (status = 'rejected' AND rejection_reason IS NOT NULL) OR
-        (status IN ('pending', 'approved') AND rejection_reason IS NULL)
-    )
 );
 
 CREATE TABLE IF NOT EXISTS ad_files (
@@ -51,3 +46,7 @@ CREATE TABLE IF NOT EXISTS ad_files (
     file_name VARCHAR(255),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+
+INSERT INTO categories(title) VALUES('cars');
+INSERT INTO categories(title) VALUES('service');
