@@ -9,6 +9,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateDraft godoc
+// @Summary      Create a new ad draft
+// @Description  Allows a user to create an ad draft
+// @Tags         user-ads
+// @Accept       json
+// @Produce      json
+// @Param        ad  body      entities.Ad  true  "Ad draft"
+// @Success      201  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security BearerAuth
+// @Router       /ads [post]
 func (h *UserHandler) CreateDraft(c *gin.Context) {
 	var ad entities.Ad
 	if err := c.ShouldBindJSON(&ad); err != nil {
@@ -25,6 +37,14 @@ func (h *UserHandler) CreateDraft(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "ad draft created successfully"})
 }
 
+// GetMyAds godoc
+// @Summary      Get all ads created by the authenticated user
+// @Tags         user-ads
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]string
+// @Security BearerAuth
+// @Router       /ads [get]
 func (h *UserHandler) GetMyAds(c *gin.Context) {
 	userID := c.GetString("user_id")
 	ads, err := h.userService.GetMyAds(c.Request.Context(), userID)
@@ -36,6 +56,18 @@ func (h *UserHandler) GetMyAds(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"ads": ads})
 }
 
+// UpdateMyAd godoc
+// @Summary      Update a user's own ad
+// @Tags         user-ads
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int          true  "Ad ID"
+// @Param        ad   body      entities.Ad  true  "Updated ad data"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security BearerAuth
+// @Router       /ads/{id} [put]
 func (h *UserHandler) UpdateMyAd(c *gin.Context) {
 	var ad entities.Ad
 	adIDStr := c.Param("id")
@@ -60,6 +92,16 @@ func (h *UserHandler) UpdateMyAd(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "ad updated successfully"})
 }
 
+// DeleteMyAd godoc
+// @Summary      Delete a user's own ad
+// @Tags         user-ads
+// @Produce      json
+// @Param        id   path      int  true  "Ad ID"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security BearerAuth
+// @Router       /ads/{id} [delete]
 func (h *UserHandler) DeleteMyAd(c *gin.Context) {
 	adIDStr := c.Param("id")
 	adID, err := strconv.Atoi(adIDStr)
@@ -76,7 +118,16 @@ func (h *UserHandler) DeleteMyAd(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "ad deleted successfully"})
 }
 
-// May delete userID for this
+// SubmitForModeration godoc
+// @Summary      Submit an ad for moderation
+// @Tags         user-ads
+// @Produce      json
+// @Param        id   path      int  true  "Ad ID"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security BearerAuth
+// @Router       /ads/{id}/submit [post]
 func (h *UserHandler) SubmitForModeration(c *gin.Context) {
 	adIDStr := c.Param("id")
 	adID, err := strconv.Atoi(adIDStr)
@@ -93,6 +144,19 @@ func (h *UserHandler) SubmitForModeration(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "ad submitted for moderation"})
 }
 
+// AddImageToMyAd godoc
+// @Summary Add image to user's ad
+// @Description Uploads and attaches an image file to the user's draft ad
+// @Tags user-ads
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path int true "Ad ID"
+// @Param file formData file true "Image file"
+// @Success 200 {object} map[string]interface{} "image added successfully"
+// @Failure 400 {object} map[string]string "invalid input"
+// @Failure 500 {object} map[string]string "internal error"
+// @Security BearerAuth
+// @Router /ads/{id}/image [post]
 func (h *UserHandler) AddImageToMyAd(c *gin.Context) {
 	log.Println("YOU ARE HERE~!!!!")
 
@@ -128,6 +192,18 @@ func (h *UserHandler) AddImageToMyAd(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "image added to ad successfully", "file": adFile})
 }
 
+// DeleteMyAdImage godoc
+// @Summary Delete image from user's ad
+// @Description Deletes a specific image from the user's ad by ad ID and file ID
+// @Tags user-ads
+// @Produce json
+// @Param id path int true "Ad ID"
+// @Param fid path int true "File ID"
+// @Success 200 {object} map[string]string "image deleted successfully"
+// @Failure 400 {object} map[string]string "invalid input"
+// @Failure 500 {object} map[string]string "internal error"
+// @Security BearerAuth
+// @Router /ads/{id}/image/{fid} [delete]
 func (h *UserHandler) DeleteMyAdImage(c *gin.Context) {
 	adID := c.Param("id")
 	fID := c.Param("fid")
@@ -154,6 +230,17 @@ func (h *UserHandler) DeleteMyAdImage(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "ad image deleted successfully"})
 }
 
+// GetImagesToMyAd godoc
+// @Summary Get images of user's ad
+// @Description Returns all images attached to the user's ad by ID
+// @Tags user-ads
+// @Produce json
+// @Param id path int true "Ad ID"
+// @Success 200 {object} map[string]interface{} "list of images"
+// @Failure 400 {object} map[string]string "invalid input"
+// @Failure 500 {object} map[string]string "internal error"
+// @Security BearerAuth
+// @Router /ads/{id}/image [get]
 func (h *UserHandler) GetImagesToMyAd(c *gin.Context) {
 	adID := c.Param("id")
 	intID, err := strconv.Atoi(adID)
