@@ -12,9 +12,10 @@ import (
 
 func (r adFileRepo) Create(ctx context.Context, file *entities.AdFile) (int, error) {
 	var (
-		insertQuery = `INSERT INTO ad_files (ad_id, file_name, url) VALUES ($1, $2, $3) RETURNING id`
+		insertQuery = `INSERT INTO ad_files (ad_id, file_name, url) VALUES ($1, $2, $3) RETURNING id;`
 		fileID      int
 	)
+
 	row := r.pool.QueryRow(ctx, insertQuery, file.AdID, file.FileName, file.URL)
 	err := row.Scan(&fileID)
 	if err != nil {
@@ -26,8 +27,8 @@ func (r adFileRepo) Create(ctx context.Context, file *entities.AdFile) (int, err
 
 func (r adFileRepo) Delete(ctx context.Context, file *entities.AdFile) (string, error) {
 	var (
-		selectQuery = `SELECT url FROM ad_files WHERE id = $1 RETURNING url`
-		delteQuery  = `DELETE FROM ad_files WHERE id = $1 AND ad_id = $2`
+		selectQuery = `SELECT url FROM ad_files WHERE id = $1`
+		deleteQuery = `DELETE FROM ad_files WHERE url=$1 AND ad_id = $2;`
 		url         string
 	)
 
@@ -42,7 +43,7 @@ func (r adFileRepo) Delete(ctx context.Context, file *entities.AdFile) (string, 
 		return "", repoerr.ErrSelection
 	}
 
-	if _, err := r.pool.Exec(ctx, delteQuery, file.ID, file.AdID); err != nil {
+	if _, err := r.pool.Exec(ctx, deleteQuery, url, file.AdID); err != nil {
 		log.Println("Error deleting ad file:", err)
 		return "", repoerr.ErrFileDeletion
 	}

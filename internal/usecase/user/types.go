@@ -23,8 +23,9 @@ type service struct {
 	fileRepo adfile.AdFileRepository
 }
 
-func NewUserService(repo adRepo.AdRepository) UserAdvertisementService {
+func NewUserService(repo adRepo.AdRepository, fileRepo adfile.AdFileRepository) UserAdvertisementService {
 	return &service{
-		repo: repo,
+		repo:     repo,
+		fileRepo: fileRepo,
 	}
 }

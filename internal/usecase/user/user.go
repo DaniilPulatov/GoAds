@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-const fileDirPerm = 0o600 // Permissions for the directory where ad images are stored
+const fileDirPerm = 0o750 // Permissions for the directory where ad images are stored
 
 func (s *service) CreateDraft(ctx context.Context, userID string, adEntity *entities.Ad) error {
 	err := utils.ValidateAd(adEntity)
@@ -130,7 +130,7 @@ func (s *service) AddImageToMyAd(ctx context.Context, userID string, file *entit
 		return usecaseerr.ErrFileNotAllowed
 	}
 
-	dirPath := fmt.Sprintf("storage/ad_%d", file.AdID)
+	dirPath := fmt.Sprintf("storage/uploadings/ad_%d", file.AdID)
 
 	if err := os.MkdirAll(dirPath, fileDirPerm); err != nil {
 		return fmt.Errorf("failed to create directory: %v", err)
@@ -139,9 +139,7 @@ func (s *service) AddImageToMyAd(ctx context.Context, userID string, file *entit
 	// TODO: delete logs after debugging
 	log.Printf("dirPath: %s", dirPath)
 	log.Printf("file.FileName: %s", file.FileName)
-
 	file.URL = dirPath + "/" + file.FileName
-
 	log.Printf("file.URL: %s", file.URL)
 	_, err = s.fileRepo.Create(ctx, file)
 	if err != nil {
