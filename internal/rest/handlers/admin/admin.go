@@ -57,7 +57,6 @@ func (h *AdminHandler) GetStatistics(c *gin.Context) {
 // @Failure 500 {object} map[string]string "failed to delete ad"
 // @Security BearerAuth
 // @Router /api/v1/admin/ads/{id} [delete]
-
 func (h *AdminHandler) DeleteAd(c *gin.Context) {
 	adID, err := strconv.Atoi(c.Param("id"))
 	if err != nil || adID <= 0 {
@@ -72,6 +71,10 @@ func (h *AdminHandler) DeleteAd(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "ad deleted"})
+}
+
+func (h *AdminHandler) DeleteImage(c *gin.Context) {
+	// TODO: implement
 }
 
 // Approve godoc
