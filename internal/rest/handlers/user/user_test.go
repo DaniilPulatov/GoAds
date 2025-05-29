@@ -437,7 +437,8 @@ func TestUserHandler_AddImageToMyAd(t *testing.T) {
 		c.Params = gin.Params{{Key: "id", Value: "1"}}
 		c.Set("user_id", "user-1")
 
-		mockService.On("AddImageToMyAd", mock.Anything, "user-1", mock.AnythingOfType("*entities.AdFile")).Return(errors.New("service error"))
+		mockService.On("AddImageToMyAd", mock.Anything, "user-1",
+			mock.AnythingOfType("*entities.AdFile")).Return(errors.New("service error"))
 
 		handler.AddImageToMyAd(c)
 		assert.Equal(t, 500, w.Code)

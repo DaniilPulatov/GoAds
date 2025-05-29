@@ -46,6 +46,17 @@ func (h *AdminHandler) GetStatistics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"statistics": stats})
 }
 
+// DeleteAd удаляет объявление по ID (только для администратора)
+// @Summary Delete ad by ID
+// @Description Permanently deletes an ad by its ID. Admin only.
+// @Tags admin
+// @Produce json
+// @Param id path int true "Ad ID"
+// @Success 200 {object} map[string]string "ad deleted"
+// @Failure 400 {object} map[string]string "invalid ad id"
+// @Failure 500 {object} map[string]string "failed to delete ad"
+// @Security BearerAuth
+// @Router /api/v1/admin/ads/{id} [delete]
 func (h *AdminHandler) DeleteAd(c *gin.Context) {
 	adID, err := strconv.Atoi(c.Param("id"))
 	if err != nil || adID <= 0 {

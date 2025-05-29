@@ -15,6 +15,6 @@ type adFileRepo struct {
 	pool db.Pool
 }
 
-func NewAdFileRepo(db db.Pool) AdFileRepository {
-	return &adFileRepo{pool: db}
+func NewAdFileRepo(pool db.Pool) AdFileRepository {
+	return &adFileRepo{pool: pool}
 }
