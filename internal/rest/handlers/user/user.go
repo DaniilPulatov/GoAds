@@ -261,3 +261,36 @@ func (h *UserHandler) GetImagesToMyAd(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"files": files})
 }
+
+// TODO: Make swagger documentation for GetMyAdsByFilter
+func (h *UserHandler) GetMyAdsByFilter(c *gin.Context) {
+	userID := c.GetString("user_id")
+	var filter entities.AdFilter
+
+	if status := c.Query("status"); status != "" {
+		filter.Status = status
+	}
+	if category := c.Query("category"); category != "" {
+		if cat, err := strconv.Atoi(category); err == nil {
+			filter.CategoryID = cat
+		}
+	}
+	if limit := c.Query("limit"); limit != "" {
+		if l, err := strconv.Atoi(limit); err == nil {
+			filter.Limit = l
+		}
+	}
+	if page := c.Query("page"); page != "" {
+		if p, err := strconv.Atoi(page); err == nil {
+			filter.Page = p
+		}
+	}
+
+	ads, err := h.userService.GetMyAdsByFilter(c.Request.Context(), userID, &filter)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get user ads: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"ads": ads})
+}

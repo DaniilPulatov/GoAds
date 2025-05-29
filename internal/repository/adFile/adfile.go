@@ -14,7 +14,7 @@ func (r adFileRepo) Create(ctx context.Context, file *entities.AdFile) (int, err
 		fileID      int
 	)
 
-	row := r.pool.QueryRow(ctx, insertQuery, file.AdID, file.FileName, file.URL)
+	row := r.db.QueryRow(ctx, insertQuery, file.AdID, file.FileName, file.URL)
 	err := row.Scan(&fileID)
 	if err != nil {
 		r.logger.ERROR("Error scanning fileID:", err)
@@ -31,7 +31,7 @@ func (r adFileRepo) Delete(ctx context.Context, file *entities.AdFile) (string, 
 		url         string
 	)
 
-	row := r.pool.QueryRow(ctx, selectQuery, file.ID)
+	row := r.db.QueryRow(ctx, selectQuery, file.ID)
 	err := row.Scan(&url)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -42,7 +42,7 @@ func (r adFileRepo) Delete(ctx context.Context, file *entities.AdFile) (string, 
 		return "", repoerr.ErrSelection
 	}
 
-	if _, err := r.pool.Exec(ctx, deleteQuery, url, file.AdID); err != nil {
+	if _, err := r.db.Exec(ctx, deleteQuery, url, file.AdID); err != nil {
 		r.logger.ERROR("Error deleting ad file :", err)
 		return "", repoerr.ErrFileDeletion
 	}
@@ -56,7 +56,7 @@ func (r adFileRepo) GetAll(ctx context.Context, adID int) ([]entities.AdFile, er
 		files       []entities.AdFile
 	)
 
-	rows, err := r.pool.Query(ctx, selectQuery, adID)
+	rows, err := r.db.Query(ctx, selectQuery, adID)
 	if err != nil {
 		r.logger.ERROR("Error selecting ad files:", err)
 		return nil, repoerr.ErrFileSelection

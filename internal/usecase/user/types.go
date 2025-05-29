@@ -17,6 +17,7 @@ type UserAdvertisementService interface {
 	AddImageToMyAd(ctx context.Context, userID string, file *entities.AdFile) error
 	GetImagesToMyAd(ctx context.Context, userID string, adID int) ([]entities.AdFile, error)
 	DeleteMyAdImage(ctx context.Context, userID string, file *entities.AdFile) error
+	GetMyAdsByFilter(ctx context.Context, userID string, filter *entities.AdFilter) ([]entities.Ad, error)
 }
 
 type service struct {
@@ -25,7 +26,8 @@ type service struct {
 	logger   customLogger.Logger
 }
 
-func NewUserService(repo adRepo.AdRepository, fileRepo adfile.AdFileRepository, logTool customLogger.Logger) UserAdvertisementService {
+func NewUserService(repo adRepo.AdRepository, fileRepo adfile.AdFileRepository,
+	logTool customLogger.Logger) UserAdvertisementService {
 	return &service{
 		repo:     repo,
 		fileRepo: fileRepo,

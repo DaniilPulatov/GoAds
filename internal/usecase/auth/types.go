@@ -21,7 +21,8 @@ type userAuthService struct {
 	logger   customLogger.Logger
 }
 
-func NewAuthService(userRepo user.UserRepository, authRepo auth.AuthRepository, logger customLogger.Logger) AuthService {
+func NewAuthService(userRepo user.UserRepository, authRepo auth.AuthRepository,
+	logger customLogger.Logger) AuthService {
 	return &userAuthService{
 		logger:   logger,
 		userRepo: userRepo,

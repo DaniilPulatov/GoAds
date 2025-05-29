@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/jackc/pgx/v5"
 	"log"
+	"strconv"
 )
 
 func (r adRepo) Create(ctx context.Context, ad *entities.Ad) error {
@@ -205,4 +206,76 @@ func (r adRepo) GetStatistics(ctx context.Context) (entities.AdStatistics, error
 	}
 	r.logger.INFO("Statistics retrieved successfully ")
 	return statistics, nil
+}
+
+func (r adRepo) Filter(ctx context.Context, filter *entities.AdFilter) ([]entities.Ad, error) {
+	query := `
+		SELECT
+			id, author_id, title, description, category_id,
+			status, is_active, created_at, updated_at
+		FROM ads
+		WHERE 1=1
+	`
+	var args []interface{}
+	argIdx := 1
+
+	if !filter.DateFrom.IsZero() {
+		query += " AND created_at >= $" + strconv.Itoa(argIdx)
+		args = append(args, filter.DateFrom)
+		argIdx++
+	}
+	if !filter.DateTo.IsZero() {
+		query += " AND created_at <= $" + strconv.Itoa(argIdx)
+		args = append(args, filter.DateTo)
+		argIdx++
+	}
+	if filter.Status != "" {
+		query += " AND status = $" + strconv.Itoa(argIdx)
+		args = append(args, filter.Status)
+		argIdx++
+	}
+	if filter.UserID != "" {
+		query += " AND author_id = $" + strconv.Itoa(argIdx)
+		args = append(args, filter.UserID)
+		argIdx++
+	}
+	if filter.CategoryID != 0 {
+		query += " AND category_id = $" + strconv.Itoa(argIdx)
+		args = append(args, filter.CategoryID)
+		argIdx++
+	}
+	if filter.Limit > 0 {
+		query += " LIMIT $" + strconv.Itoa(argIdx)
+		args = append(args, filter.Limit)
+		argIdx++
+	}
+	if filter.Page > 0 && filter.Limit > 0 {
+		offset := (filter.Page - 1) * filter.Limit
+		query += " OFFSET $" + strconv.Itoa(argIdx)
+		args = append(args, offset)
+	}
+
+	rows, err := r.db.Query(ctx, query, args...)
+	if err != nil {
+		r.logger.ERROR("Ошибка при фильтрации объявлений: ", err)
+		return nil, repoerr.ErrGettingAllAds
+	}
+	defer rows.Close()
+
+	var ads []entities.Ad
+	for rows.Next() {
+		var ad entities.Ad
+		if err = rows.Scan(&ad.ID, &ad.AuthorID, &ad.Title, &ad.Description, &ad.CategoryID, &ad.Status,
+			&ad.IsActive, &ad.CreatedAt, &ad.UpdatedAt); err != nil {
+			r.logger.ERROR("Ошибка сканирования: ", err)
+			return nil, repoerr.ErrScan
+		}
+		ads = append(ads, ad)
+	}
+	if err = rows.Err(); err != nil {
+		r.logger.ERROR("Ошибка при обходе строк: ", err)
+		return nil, repoerr.ErrScan
+	}
+	r.logger.INFO("Объявления успешно отфильтрованы")
+	return ads, nil
 }

@@ -204,6 +204,23 @@ func (s *service) GetImagesToMyAd(ctx context.Context, userID string, adID int) 
 	return files, nil
 }
 
+func (s *service) GetMyAdsByFilter(ctx context.Context, userID string,
+	filter *entities.AdFilter) ([]entities.Ad, error) {
+	filter.UserID = userID
+	ads, err := s.repo.Filter(ctx, filter)
+	if err != nil {
+		s.logger.ERROR("error getting my ads: ", err)
+		return nil, repoerr.ErrGettingAdsByUserID
+	}
+	if len(ads) == 0 {
+		s.logger.ERROR("user not found")
+		return nil, usecaseerr.ErrUserNotHaveAds
+	}
+
+	s.logger.INFO("ads retrieved successfully: ")
+	return ads, nil
+}
+
 func checkIfFileAllowed(fileName string) bool {
 	allowedExtensions := []string{".jpg", ".jpeg", ".png", ".svg"}
 	for _, ext := range allowedExtensions {

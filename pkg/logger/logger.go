@@ -1,6 +1,7 @@
 package customLogger
 
 import (
+	"ads-service/pkg/utils"
 	"context"
 	"fmt"
 	"log"
@@ -15,6 +16,11 @@ func NewLogger(ctx context.Context) (Logger, error) {
 	var wg sync.WaitGroup
 	logCh := make(chan string, chunkSize)
 
+	if !utils.IsSafeLogPath(logFile) {
+		return Logger{}, ErrFileOpening
+	}
+
+	// #nosec G304 -- путь проверяется функцией IsSafeLogPath
 	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND|os.O_RDWR, permission)
 	if err != nil {
 		return Logger{}, ErrFileOpening
@@ -25,7 +31,7 @@ func NewLogger(ctx context.Context) (Logger, error) {
 		defer wg.Done()
 		defer func() {
 			if cerr := file.Close(); cerr != nil {
-				log.Println("Error file closing") //log ERROR
+				log.Println("Error file closing") // log ERROR
 			}
 		}()
 
