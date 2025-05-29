@@ -59,7 +59,7 @@ func (h *AdminHandler) DeleteAd(c *gin.Context) {
 			"error": "failed to delete ad: " + err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "ad deleted"})
+	c.JSON(http.StatusOK, gin.H{"message": "Ad deleted"})
 }
 
 func (h *AdminHandler) DeleteImage(c *gin.Context) {
@@ -89,7 +89,7 @@ func (h *AdminHandler) Approve(c *gin.Context) {
 			"error": "failed to approve ad: " + err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "ad approved"})
+	c.JSON(http.StatusOK, gin.H{"message": "Ad approved"})
 }
 
 // Reject godoc
@@ -123,5 +123,5 @@ func (h *AdminHandler) Reject(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "ad rejected"})
+	c.JSON(http.StatusOK, gin.H{"message": "Ad rejected"})
 }

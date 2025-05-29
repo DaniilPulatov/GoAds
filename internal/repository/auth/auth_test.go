@@ -63,7 +63,7 @@ func TestAuthRepo_Create(t *testing.T) {
 }
 
 func TestGetToken_Success(t *testing.T) {
-	mockRepo := new(AuthRepositoryMock)
+	mockRepo := new(MockAuthRepository)
 	ctx := context.Background()
 
 	expectedToken := &Token{
@@ -86,7 +86,7 @@ func TestGetToken_Success(t *testing.T) {
 }
 
 func TestGetToken_Error(t *testing.T) {
-	mockRepo := new(AuthRepositoryMock)
+	mockRepo := new(MockAuthRepository)
 	ctx := context.Background()
 
 	mockRepo.On("Get", ctx, "non-existent-user").Return(nil, errors.New("user not found"))
@@ -100,7 +100,7 @@ func TestGetToken_Error(t *testing.T) {
 }
 
 func TestUpdateToken_Success(t *testing.T) {
-	mockRepo := new(AuthRepositoryMock)
+	mockRepo := new(MockAuthRepository)
 	ctx := context.Background()
 
 	rtoken := entities.Token{
@@ -118,7 +118,7 @@ func TestUpdateToken_Success(t *testing.T) {
 }
 
 func TestUpdateToken_Error(t *testing.T) {
-	mockRepo := new(AuthRepositoryMock)
+	mockRepo := new(MockAuthRepository)
 	ctx := context.Background()
 
 	rtoken := entities.Token{
@@ -137,7 +137,7 @@ func TestUpdateToken_Error(t *testing.T) {
 }
 
 func TestDeleteToken_Success(t *testing.T) {
-	mockRepo := new(AuthRepositoryMock)
+	mockRepo := new(MockAuthRepository)
 	ctx := context.Background()
 
 	userID := "user-123"
@@ -151,7 +151,7 @@ func TestDeleteToken_Success(t *testing.T) {
 }
 
 func TestDeleteToken_Error(t *testing.T) {
-	mockRepo := new(AuthRepositoryMock)
+	mockRepo := new(MockAuthRepository)
 	ctx := context.Background()
 
 	userID := "non-existent-user"

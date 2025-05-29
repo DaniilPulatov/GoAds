@@ -29,12 +29,17 @@ func (h *UserHandler) CreateDraft(c *gin.Context) {
 	}
 
 	userID := c.GetString("user_id")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
 	if err := h.userService.CreateDraft(c.Request.Context(), userID, &ad); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create ad: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "ad draft created successfully"})
+	c.JSON(http.StatusCreated, gin.H{"message": "Ad draft created successfully"})
 }
 
 // GetMyAds godoc
@@ -89,7 +94,7 @@ func (h *UserHandler) UpdateMyAd(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update ad: " + err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "ad updated successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Ad updated successfully"})
 }
 
 // DeleteMyAd godoc
@@ -115,7 +120,7 @@ func (h *UserHandler) DeleteMyAd(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete ad: " + err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "ad deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Ad deleted successfully"})
 }
 
 // SubmitForModeration godoc
@@ -141,7 +146,7 @@ func (h *UserHandler) SubmitForModeration(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to submit ad for moderation: " + err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "ad submitted for moderation"})
+	c.JSON(http.StatusOK, gin.H{"message": "Ad submitted for moderation"})
 }
 
 // AddImageToMyAd godoc
@@ -189,7 +194,7 @@ func (h *UserHandler) AddImageToMyAd(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "failed to save uploaded file: " + err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"message": "image added to ad successfully", "file": adFile})
+	c.JSON(200, gin.H{"message": "image added to Ad successfully", "file": adFile})
 }
 
 // DeleteMyAdImage godoc
@@ -227,7 +232,7 @@ func (h *UserHandler) DeleteMyAdImage(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "failed to delete ad image: " + err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"message": "ad image deleted successfully"})
+	c.JSON(200, gin.H{"message": "Ad image deleted successfully"})
 }
 
 // GetImagesToMyAd godoc
