@@ -5,6 +5,7 @@ import (
 	"ads-service/internal/errs/repoerr"
 	"ads-service/internal/repository/ad"
 	"ads-service/internal/repository/user"
+	customLogger "ads-service/pkg/logger"
 	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,7 +19,7 @@ func TestMockAdminService_GetAllAds(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockUserRepo.AssertExpectations(t)
 
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 		expectedAds := []entities.Ad{
 			{ID: 1, AuthorID: "1", Title: "ad1"},
 			{ID: 2, AuthorID: "1", Title: "ad2"},
@@ -37,7 +38,7 @@ func TestMockAdminService_GetAllAds(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockUserRepo.AssertExpectations(t)
 
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		mockRepo.On("GetAll", mock.Anything).
 			Return([]entities.Ad{}, repoerr.ErrSelection)
@@ -53,7 +54,7 @@ func TestMockAdminService_GetAllAds(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockUserRepo.AssertExpectations(t)
 
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		mockRepo.On("GetAll", mock.Anything).Return([]entities.Ad{}, nil)
 
@@ -70,7 +71,7 @@ func TestMockAdminService_DeleteAd(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockUserRepo.AssertExpectations(t)
 
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 		mockRepo.On("Delete", mock.Anything, 1).Return(nil)
 
 		err := service.DeleteAd(context.Background(), 1)
@@ -80,7 +81,7 @@ func TestMockAdminService_DeleteAd(t *testing.T) {
 	t.Run("invalid ad id", func(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		err := service.DeleteAd(context.Background(), 0)
 		assert.Error(t, err)
@@ -90,7 +91,7 @@ func TestMockAdminService_DeleteAd(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
 		defer mockRepo.AssertExpectations(t)
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		mockRepo.On("Delete", mock.Anything, 2).Return(assert.AnError)
 
@@ -104,7 +105,7 @@ func TestMockAdminService_Approve(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
 		defer mockRepo.AssertExpectations(t)
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		adEntity := &entities.Ad{ID: 1}
 		mockRepo.On("GetByID", mock.Anything, 1).Return(adEntity, nil)
@@ -118,7 +119,7 @@ func TestMockAdminService_Approve(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
 		defer mockRepo.AssertExpectations(t)
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		mockRepo.On("GetByID", mock.Anything, 2).Return(nil, nil)
 
@@ -130,7 +131,7 @@ func TestMockAdminService_Approve(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
 		defer mockRepo.AssertExpectations(t)
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		mockRepo.On("GetByID", mock.Anything, 3).Return(nil, assert.AnError)
 
@@ -142,7 +143,7 @@ func TestMockAdminService_Approve(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
 		defer mockRepo.AssertExpectations(t)
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		adEntity := &entities.Ad{ID: 4}
 		mockRepo.On("GetByID", mock.Anything, 4).Return(adEntity, nil)
@@ -158,7 +159,7 @@ func TestMockAdminService_Reject(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
 		defer mockRepo.AssertExpectations(t)
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		adEntity := &entities.Ad{ID: 1}
 		mockRepo.On("GetByID", mock.Anything, 1).Return(adEntity, nil)
@@ -172,7 +173,7 @@ func TestMockAdminService_Reject(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
 		defer mockRepo.AssertExpectations(t)
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		mockRepo.On("GetByID", mock.Anything, 2).Return(nil, nil)
 
@@ -184,7 +185,7 @@ func TestMockAdminService_Reject(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
 		defer mockRepo.AssertExpectations(t)
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		mockRepo.On("GetByID", mock.Anything, 3).Return(nil, assert.AnError)
 
@@ -196,7 +197,7 @@ func TestMockAdminService_Reject(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
 		defer mockRepo.AssertExpectations(t)
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		adEntity := &entities.Ad{ID: 4}
 		mockRepo.On("GetByID", mock.Anything, 4).Return(adEntity, nil)
@@ -212,7 +213,7 @@ func TestMockAdminService_GetStatistics(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
 		defer mockRepo.AssertExpectations(t)
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		expectedStats := entities.AdStatistics{Total: 10}
 		mockRepo.On("GetStatistics", mock.Anything).Return(expectedStats, nil)
@@ -226,7 +227,7 @@ func TestMockAdminService_GetStatistics(t *testing.T) {
 		mockRepo := ad.MockAdRepo{}
 		mockUserRepo := user.MockUserRepo{}
 		defer mockRepo.AssertExpectations(t)
-		service := NewAdminService(&mockRepo, &mockUserRepo)
+		service := NewAdminService(&mockRepo, &mockUserRepo, customLogger.Logger{})
 
 		mockRepo.On("GetStatistics", mock.Anything).Return(entities.AdStatistics{}, assert.AnError)
 

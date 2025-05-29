@@ -5,8 +5,6 @@ import (
 	"ads-service/internal/errs/repoerr"
 	"context"
 	"errors"
-	"log"
-
 	"github.com/jackc/pgx/v5"
 )
 
@@ -19,9 +17,10 @@ func (r adFileRepo) Create(ctx context.Context, file *entities.AdFile) (int, err
 	row := r.pool.QueryRow(ctx, insertQuery, file.AdID, file.FileName, file.URL)
 	err := row.Scan(&fileID)
 	if err != nil {
-		log.Println("Error scanning fileID:", err)
+		r.logger.ERROR("Error scanning fileID:", err)
 		return -1, repoerr.ErrFileInsertion
 	}
+	r.logger.INFO("Successfully created ad file with ID:", file.AdID)
 	return fileID, nil
 }
 
@@ -36,17 +35,18 @@ func (r adFileRepo) Delete(ctx context.Context, file *entities.AdFile) (string, 
 	err := row.Scan(&url)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			log.Println("No ad file found with ID:", file.ID)
+			r.logger.ERROR("No ad file found with ID: ", file.ID)
 			return "", repoerr.ErrFileNotFound
 		}
-		log.Println("Error selecting ad file:", err)
+		r.logger.ERROR("Error selecting ad file: ", err)
 		return "", repoerr.ErrSelection
 	}
 
 	if _, err := r.pool.Exec(ctx, deleteQuery, url, file.AdID); err != nil {
-		log.Println("Error deleting ad file:", err)
+		r.logger.ERROR("Error deleting ad file :", err)
 		return "", repoerr.ErrFileDeletion
 	}
+	r.logger.INFO("Deleted ad file successfully", file)
 	return url, nil
 }
 
@@ -58,7 +58,7 @@ func (r adFileRepo) GetAll(ctx context.Context, adID int) ([]entities.AdFile, er
 
 	rows, err := r.pool.Query(ctx, selectQuery, adID)
 	if err != nil {
-		log.Println("Error selecting ad files:", err)
+		r.logger.ERROR("Error selecting ad files:", err)
 		return nil, repoerr.ErrFileSelection
 	}
 	defer rows.Close()
@@ -66,16 +66,17 @@ func (r adFileRepo) GetAll(ctx context.Context, adID int) ([]entities.AdFile, er
 	for rows.Next() {
 		var file entities.AdFile
 		if err := rows.Scan(&file.ID, &file.AdID, &file.FileName, &file.URL, &file.CreatedAt); err != nil {
-			log.Println("Error scanning ad file:", err)
+			r.logger.ERROR("Error scanning ad file:", err)
 			return nil, repoerr.ErrJSONUnmarshal
 		}
 		files = append(files, file)
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Println("Error iterating over ad files:", err)
+		r.logger.ERROR("Error iterating over ad files:", err)
 		return nil, repoerr.ErrSelection
 	}
+	r.logger.INFO("Retrieved all ad files", len(files))
 
 	return files, nil
 }

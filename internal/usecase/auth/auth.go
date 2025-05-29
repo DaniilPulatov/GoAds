@@ -19,27 +19,27 @@ import (
 
 func (s *userAuthService) Register(ctx context.Context, user *entities.User) error {
 	if user.Password == "" || user.Phone == "" {
-		log.Println("phone or password is empty")
+		s.logger.ERROR("phone or password is empty")
 		return usecaseerr.ErrInvalidUserData
 	}
 	if !utils.IsValidPassword(user.Password) || !utils.IsValidPhone(user.Phone) {
-		log.Println("invalid phone or password")
+		s.logger.ERROR("invalid phone or password")
 		return usecaseerr.ErrInvalidUserData
 	}
 	isExists, err := s.userRepo.IsExists(ctx, user.Phone)
 	if err != nil {
-		log.Println("Error checking if user exists:", err)
+		s.logger.ERROR("Error checking if user exists:", err)
 		return usecaseerr.ErrCheckUserExists
 	}
 	if isExists {
-		log.Println("User already exists with phone:", user.Phone)
+		s.logger.ERROR("User already exists with phone:", user.Phone)
 		return usecaseerr.ErrUserAlreadyExists
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 
 	if err != nil {
-		log.Println("Error hashing password:", err)
+		s.logger.ERROR("Error hashing password:", err)
 		return usecaseerr.ErrInvalidUserData
 	}
 	user.PasswordHash = string(hash)
@@ -47,10 +47,10 @@ func (s *userAuthService) Register(ctx context.Context, user *entities.User) err
 
 	_, err = s.userRepo.CreateUser(ctx, user)
 	if err != nil {
-		log.Println("Error creating user:", err)
+		s.logger.ERROR("Error creating user:", err)
 		return repoerr.ErrUserInsertFailed
 	}
-	log.Println("User registered successfully:", user.Phone)
+	s.logger.INFO("User registered successfully:", user.Phone)
 
 	return nil
 }
@@ -58,13 +58,13 @@ func (s *userAuthService) Register(ctx context.Context, user *entities.User) err
 func (s *userAuthService) Login(ctx context.Context, phone, password string) (rToken, accessToken string, err error) {
 	intRefresh, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_LIFETIME"))
 	if err != nil {
-		log.Println("Error converting refresh token duration to int:", err)
+		s.logger.ERROR("Error converting refresh token duration to int:", err)
 		return "", "", usecaseerr.ErrInvalidTokenDuration
 	}
 
 	intAccess, err := strconv.Atoi(os.Getenv("ACCESS_TOKEN_LIFETIME"))
 	if err != nil {
-		log.Println("Error converting access token duration to int:", err)
+		s.logger.ERROR("Error converting access token duration to int:", err)
 		return "", "", usecaseerr.ErrInvalidTokenDuration
 	}
 
@@ -74,29 +74,29 @@ func (s *userAuthService) Login(ctx context.Context, phone, password string) (rT
 
 	user, err := s.userRepo.GetByPhone(ctx, phone)
 	if err != nil {
-		log.Println("Error getting user by phone:", err)
+		s.logger.ERROR("Error getting user by phone:", err)
 		return "", "", usecaseerr.ErrCheckUserExists
 	}
 
 	if user == nil {
-		log.Println("User not found with phone:", phone)
+		s.logger.ERROR("User not found with phone:", phone)
 		return "", "", usecaseerr.ErrUserNotFound
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
 	if err != nil {
-		log.Println("Password mismatch for user:", phone)
+		s.logger.ERROR("Password mismatch for user:", phone)
 		return "", "", usecaseerr.ErrInvalidUserData
 	}
 
 	rToken, err = utils.GenerateToken(user.ID, intRefresh)
 	if err != nil {
-		log.Println("Error generating refresh token:", err)
+		s.logger.ERROR("Error generating refresh token:", err)
 		return "", "", usecaseerr.ErrTokenGeneration
 	}
 	accessToken, err = utils.GenerateToken(user.ID, intAccess)
 	if err != nil {
-		log.Println("Error generating access token:", err)
+		s.logger.ERROR("Error generating access token:", err)
 		return "", "", usecaseerr.ErrTokenGeneration
 	}
 
@@ -105,9 +105,10 @@ func (s *userAuthService) Login(ctx context.Context, phone, password string) (rT
 		Token:     rToken,
 		ExpiresAt: time.Now().Local().Add(time.Duration(intRefresh) * time.Minute),
 	}); err != nil {
-		log.Println("Error creating refresh token in repository:", err)
+		s.logger.ERROR("Error creating refresh token in repository:", err)
 		return "", "", usecaseerr.ErrTokenGeneration
 	}
+	s.logger.INFO("Successfully logged in user:", user.Phone)
 	return rToken, accessToken, nil
 }
 

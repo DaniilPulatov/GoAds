@@ -6,6 +6,7 @@ import (
 	"ads-service/internal/errs/usecaseerr"
 	"ads-service/internal/repository/ad"
 	adfile "ads-service/internal/repository/adFile"
+	customLogger "ads-service/pkg/logger"
 	"context"
 	"errors"
 	"github.com/stretchr/testify/assert"
@@ -20,7 +21,7 @@ func TestService_CreateDraft(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 
 		err := service.CreateDraft(context.Background(), "1", &entities.Ad{
 			Title: "",
@@ -36,7 +37,7 @@ func TestService_CreateDraft(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 		mockRepo.On("Create", mock.Anything, mock.Anything).
 			Return(repoerr.ErrInsert)
 		err := service.CreateDraft(context.Background(), "1",
@@ -52,7 +53,7 @@ func TestService_CreateDraft(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 		mockRepo.On("Create", mock.Anything, mock.Anything).Return(nil)
 		err := service.CreateDraft(context.Background(), "1",
 			&entities.Ad{Title: "ok", Description: "desc", CategoryID: 1})
@@ -67,7 +68,7 @@ func TestService_UpdateMyAd(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 		mockRepo.On("GetByID", mock.Anything, 1).
 			Return((*entities.Ad)(nil), errors.New("err"))
 		err := service.UpdateMyAd(context.Background(), "1", &entities.Ad{ID: 1})
@@ -82,7 +83,7 @@ func TestService_UpdateMyAd(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 		mockRepo.On("GetByID", mock.Anything, 1).
 			Return(&entities.Ad{AuthorID: "2"}, nil)
 		err := service.UpdateMyAd(context.Background(), "1", &entities.Ad{ID: 1})
@@ -97,7 +98,7 @@ func TestService_UpdateMyAd(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 		mockRepo.On("GetByID", mock.Anything, 1).Return(&entities.Ad{AuthorID: "1"}, nil)
 		err := service.UpdateMyAd(context.Background(), "1", &entities.Ad{ID: 1, Title: ""})
 		assert.Equal(t, usecaseerr.ErrInvalidParams, err)
@@ -109,7 +110,7 @@ func TestService_UpdateMyAd(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 
 		adEntity := &entities.Ad{ID: 1, AuthorID: "1", Title: "ok", Description: "desc", CategoryID: 1}
 		mockRepo.On("GetByID", mock.Anything, 1).
@@ -128,7 +129,7 @@ func TestService_UpdateMyAd(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 		adEntity := &entities.Ad{ID: 1, AuthorID: "1", Title: "ok", Description: "desc", CategoryID: 1}
 		mockRepo.On("GetByID", mock.Anything, 1).
 			Return(&entities.Ad{AuthorID: "1"}, nil)
@@ -147,7 +148,7 @@ func TestService_DeleteMyAd(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 
 		mockRepo.On("GetByID", mock.Anything, 1).
 			Return((*entities.Ad)(nil), errors.New("err"))
@@ -163,7 +164,7 @@ func TestService_DeleteMyAd(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 
 		mockRepo.On("GetByID", mock.Anything, 1).
 			Return(&entities.Ad{AuthorID: "2"}, nil)
@@ -179,7 +180,7 @@ func TestService_DeleteMyAd(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 
 		mockRepo.On("GetByID", mock.Anything, 1).
 			Return(&entities.Ad{AuthorID: "1"}, nil)
@@ -197,7 +198,7 @@ func TestService_DeleteMyAd(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 
 		mockRepo.On("GetByID", mock.Anything, 1).
 			Return(&entities.Ad{AuthorID: "1"}, nil)
@@ -216,7 +217,7 @@ func TestService_GetMyAds(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 
 		mockRepo.On("GetByUserID", mock.Anything, "1").
 			Return([]entities.Ad{}, errors.New("db error"))
@@ -232,7 +233,7 @@ func TestService_GetMyAds(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 
 		mockRepo.On("GetByUserID", mock.Anything, "1").
 			Return([]entities.Ad{}, nil)
@@ -248,7 +249,7 @@ func TestService_GetMyAds(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 		expectedAds := []entities.Ad{
 			{ID: 1, AuthorID: "1", Title: "ad1"},
 			{ID: 2, AuthorID: "1", Title: "ad2"},
@@ -269,7 +270,7 @@ func TestService_SubmitForModeration(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 
 		mockRepo.On("GetByID", mock.Anything, 1).
 			Return((*entities.Ad)(nil), errors.New("err"))
@@ -285,7 +286,7 @@ func TestService_SubmitForModeration(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 		mockRepo.On("GetByID", mock.Anything, 1).
 			Return(&entities.Ad{AuthorID: "2"}, nil)
 
@@ -300,7 +301,7 @@ func TestService_SubmitForModeration(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 
 		adEntity := &entities.Ad{ID: 1, AuthorID: "1"}
 		mockRepo.On("GetByID", mock.Anything, 1).
@@ -319,7 +320,7 @@ func TestService_SubmitForModeration(t *testing.T) {
 		defer mockRepo.AssertExpectations(t)
 		defer mockFileRepo.AssertExpectations(t)
 
-		service := NewUserService(&mockRepo, &mockFileRepo)
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
 
 		adEntity := &entities.Ad{ID: 1, AuthorID: "1"}
 		mockRepo.On("GetByID", mock.Anything, 1).

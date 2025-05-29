@@ -3,6 +3,7 @@ package ad
 import (
 	"ads-service/internal/domain/entities"
 	"ads-service/pkg/db"
+	customLogger "ads-service/pkg/logger"
 	"context"
 )
 
@@ -19,9 +20,11 @@ type AdRepository interface {
 }
 
 type adRepo struct {
-	db db.Pool
+	db     db.Pool
+	logger customLogger.Logger
 }
 
-func NewAdRepo(pool db.Pool) AdRepository {
-	return &adRepo{db: pool}
+func NewAdRepo(pool db.Pool, logger customLogger.Logger) AdRepository {
+
+	return &adRepo{db: pool, logger: logger}
 }

@@ -4,6 +4,7 @@ import (
 	"ads-service/internal/domain/entities"
 	"ads-service/internal/repository/auth"
 	"ads-service/internal/repository/user"
+	customLogger "ads-service/pkg/logger"
 	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,7 +19,7 @@ func TestMockAuthService_IsAdmin(t *testing.T) {
 		defer mockUserRepo.AssertExpectations(t)
 		defer mockAuthRepo.AssertExpectations(t)
 
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 
 		mockUserRepo.On("GetUserByID", mock.Anything, "1").
 			Return(&entities.User{Role: entities.RoleAdmin}, nil)
@@ -34,7 +35,7 @@ func TestMockAuthService_IsAdmin(t *testing.T) {
 		defer mockUserRepo.AssertExpectations(t)
 		defer mockAuthRepo.AssertExpectations(t)
 
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 
 		mockUserRepo.On("GetUserByID", mock.Anything, "2").
 			Return(&entities.User{Role: entities.RoleUser}, nil)
@@ -50,7 +51,7 @@ func TestMockAuthService_IsAdmin(t *testing.T) {
 		defer mockUserRepo.AssertExpectations(t)
 		defer mockAuthRepo.AssertExpectations(t)
 
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 
 		mockUserRepo.On("GetUserByID", mock.Anything, "3").Return(nil, nil)
 
@@ -65,7 +66,7 @@ func TestMockAuthService_IsAdmin(t *testing.T) {
 		defer mockUserRepo.AssertExpectations(t)
 		defer mockAuthRepo.AssertExpectations(t)
 
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 
 		mockUserRepo.On("GetUserByID", mock.Anything, "4").Return(nil, assert.AnError)
 
@@ -82,7 +83,7 @@ func TestMockAuthService_Register(t *testing.T) {
 		defer mockUserRepo.AssertExpectations(t)
 		defer mockAuthRepo.AssertExpectations(t)
 
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 		userEntity := &entities.User{Phone: "+998917773355", Password: "ValidPass123!"}
 
 		mockUserRepo.On("IsExists", mock.Anything, userEntity.Phone).
@@ -97,7 +98,7 @@ func TestMockAuthService_Register(t *testing.T) {
 	t.Run("empty pass and phone", func(t *testing.T) {
 		mockUserRepo := &user.MockUserRepo{}
 		mockAuthRepo := &auth.MockAuthRepository{}
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 		userEntity := &entities.User{Phone: "", Password: ""}
 
 		err := service.Register(context.Background(), userEntity)
@@ -107,7 +108,7 @@ func TestMockAuthService_Register(t *testing.T) {
 	t.Run("incorrect pass or number", func(t *testing.T) {
 		mockUserRepo := &user.MockUserRepo{}
 		mockAuthRepo := &auth.MockAuthRepository{}
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 		userEntity := &entities.User{Phone: "123", Password: "123"}
 
 		err := service.Register(context.Background(), userEntity)
@@ -117,7 +118,7 @@ func TestMockAuthService_Register(t *testing.T) {
 	t.Run("user already exist", func(t *testing.T) {
 		mockUserRepo := &user.MockUserRepo{}
 		mockAuthRepo := &auth.MockAuthRepository{}
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 		userEntity := &entities.User{Phone: "+998917773355", Password: "ValidPass123!"}
 
 		mockUserRepo.On("IsExists", mock.Anything, userEntity.Phone).Return(true, nil)
@@ -129,7 +130,7 @@ func TestMockAuthService_Register(t *testing.T) {
 	t.Run("err checking user", func(t *testing.T) {
 		mockUserRepo := &user.MockUserRepo{}
 		mockAuthRepo := &auth.MockAuthRepository{}
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 		userEntity := &entities.User{Phone: "+998917773355", Password: "ValidPass123!"}
 
 		mockUserRepo.On("IsExists", mock.Anything, userEntity.Phone).
@@ -142,7 +143,7 @@ func TestMockAuthService_Register(t *testing.T) {
 	t.Run("err creation user", func(t *testing.T) {
 		mockUserRepo := &user.MockUserRepo{}
 		mockAuthRepo := &auth.MockAuthRepository{}
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 		userEntity := &entities.User{Phone: "+998917773355", Password: "ValidPass123!"}
 
 		mockUserRepo.On("IsExists", mock.Anything, userEntity.Phone).Return(false, nil)
@@ -163,7 +164,7 @@ func TestMockAuthService_Login(t *testing.T) {
 		defer mockUserRepo.AssertExpectations(t)
 		defer mockAuthRepo.AssertExpectations(t)
 
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 		password := "ValidPass123!"
 		hashed, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		userEntity := &entities.User{ID: "1", Phone: "+79999999999", PasswordHash: string(hashed)}
@@ -181,7 +182,7 @@ func TestMockAuthService_Login(t *testing.T) {
 	t.Run("empty phone and password", func(t *testing.T) {
 		mockUserRepo := &user.MockUserRepo{}
 		mockAuthRepo := &auth.MockAuthRepository{}
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 
 		rToken, accessToken, err := service.Login(context.Background(), "", "")
 		assert.Error(t, err)
@@ -192,7 +193,7 @@ func TestMockAuthService_Login(t *testing.T) {
 	t.Run("user not found", func(t *testing.T) {
 		mockUserRepo := &user.MockUserRepo{}
 		mockAuthRepo := &auth.MockAuthRepository{}
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 
 		mockUserRepo.On("GetByPhone", mock.Anything, "notfound").Return(nil, nil)
 
@@ -205,7 +206,7 @@ func TestMockAuthService_Login(t *testing.T) {
 	t.Run("error getting user", func(t *testing.T) {
 		mockUserRepo := &user.MockUserRepo{}
 		mockAuthRepo := &auth.MockAuthRepository{}
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 
 		mockUserRepo.On("GetByPhone", mock.Anything, "err").Return(nil, assert.AnError)
 
@@ -218,7 +219,7 @@ func TestMockAuthService_Login(t *testing.T) {
 	t.Run("wrong password", func(t *testing.T) {
 		mockUserRepo := &user.MockUserRepo{}
 		mockAuthRepo := &auth.MockAuthRepository{}
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 		hashed, _ := bcrypt.GenerateFromPassword([]byte("rightpass"), bcrypt.DefaultCost)
 		userEntity := &entities.User{ID: "1", Phone: "+79999999999", PasswordHash: string(hashed)}
 
@@ -233,7 +234,7 @@ func TestMockAuthService_Login(t *testing.T) {
 	t.Run("error token creation", func(t *testing.T) {
 		mockUserRepo := &user.MockUserRepo{}
 		mockAuthRepo := &auth.MockAuthRepository{}
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 		password := "ValidPass123!"
 		hashed, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		userEntity := &entities.User{ID: "1", Phone: "+79999999999", PasswordHash: string(hashed)}
@@ -257,7 +258,7 @@ func TestMockAuthService_Refresh(t *testing.T) {
 		t.Setenv("REFRESH_TOKEN_LIFETIME", "notint")
 		mockUserRepo := &user.MockUserRepo{}
 		mockAuthRepo := &auth.MockAuthRepository{}
-		service := NewAuthService(mockUserRepo, mockAuthRepo)
+		service := NewAuthService(mockUserRepo, mockAuthRepo, customLogger.Logger{})
 
 		access, refresh, err := service.Refresh(context.Background(), "sometoken")
 		assert.Error(t, err)

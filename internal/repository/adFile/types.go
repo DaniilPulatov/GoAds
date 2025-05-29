@@ -3,6 +3,7 @@ package adfile
 import (
 	"ads-service/internal/domain/entities"
 	"ads-service/pkg/db"
+	customLogger "ads-service/pkg/logger"
 	"context"
 )
 
@@ -12,9 +13,10 @@ type AdFileRepository interface {
 	Delete(ctx context.Context, file *entities.AdFile) (string, error)
 }
 type adFileRepo struct {
-	pool db.Pool
+	pool   db.Pool
+	logger customLogger.Logger
 }
 
-func NewAdFileRepo(pool db.Pool) AdFileRepository {
-	return &adFileRepo{pool: pool}
+func NewAdFileRepo(db db.Pool, logTool customLogger.Logger) AdFileRepository {
+	return &adFileRepo{pool: db, logger: logTool}
 }

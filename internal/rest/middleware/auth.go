@@ -12,7 +12,6 @@ import (
 
 func (m *Middleware) UserAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		log.Println("YOU ARE HERE~!!!!")
 		authHeader := c.GetHeader("Authorization")
 		data := strings.Split(authHeader, " ")
 		if len(data) != 2 || data[0] != "Bearer" {
@@ -28,14 +27,14 @@ func (m *Middleware) UserAuth() gin.HandlerFunc {
 				return []byte(os.Getenv("JWT_SECRET_KEY")), nil
 			})
 		if err != nil {
-			log.Println("#Err parsing token:", err)
+			log.Println("Err parsing token:", err)
 			c.JSON(401, gin.H{"error": "unauthorized"})
 			c.Abort()
 			return
 		}
 		claims, ok := token.Claims.(*utils.CustomClaims)
 		if !ok || !token.Valid {
-			log.Println("#Err validating token:", err)
+			log.Println("Err validating token:", err)
 			c.JSON(401, gin.H{"error": "unauthorized"})
 			c.Abort()
 			return
@@ -57,7 +56,6 @@ func (m *Middleware) AdminAuth() gin.HandlerFunc {
 		}
 		rawtoken := data[1]
 
-		// TODO: Secret key should be stored securely, not hardcoded
 		token, err := jwt.ParseWithClaims(rawtoken, &utils.CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("JWT_SECRET_KEY")), nil // TODO: remember
 		})

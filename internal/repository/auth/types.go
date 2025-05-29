@@ -3,6 +3,7 @@ package auth
 import (
 	"ads-service/internal/domain/entities"
 	"ads-service/pkg/db"
+	customLogger "ads-service/pkg/logger"
 	"context"
 )
 
@@ -15,9 +16,10 @@ type AuthRepository interface {
 }
 
 type authRepo struct {
-	pool db.Pool
+	pool   db.Pool
+	logger customLogger.Logger
 }
 
-func NewAuthRepo(pool db.Pool) AuthRepository {
-	return &authRepo{pool: pool}
+func NewAuthRepo(pool db.Pool, logTool customLogger.Logger) AuthRepository {
+	return &authRepo{pool: pool, logger: logTool}
 }
