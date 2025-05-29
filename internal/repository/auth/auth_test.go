@@ -1,3 +1,4 @@
+//nolint:all // testpackage
 package auth
 
 import (

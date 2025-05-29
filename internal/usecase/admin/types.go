@@ -29,7 +29,8 @@ type service struct {
 	logger   customLogger.Logger
 }
 
-func NewAdminService(adRepo ad.AdRepository, userRepo user.UserRepository, logTool customLogger.Logger) AdminAdvertisementService {
+func NewAdminService(adRepo ad.AdRepository, userRepo user.UserRepository,
+	logTool customLogger.Logger) AdminAdvertisementService {
 	return &service{
 		// fileDel: fileDel,
 		adRepo:   adRepo,

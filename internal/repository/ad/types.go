@@ -17,6 +17,7 @@ type AdRepository interface {
 	Approve(ctx context.Context, id int, ad *entities.Ad) error
 	Reject(ctx context.Context, id int, ad *entities.Ad) error
 	GetStatistics(ctx context.Context) (entities.AdStatistics, error)
+	Filter(ctx context.Context, filter *entities.AdFilter) ([]entities.Ad, error)
 }
 
 type adRepo struct {

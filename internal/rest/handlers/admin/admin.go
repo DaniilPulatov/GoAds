@@ -73,10 +73,6 @@ func (h *AdminHandler) DeleteAd(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "ad deleted"})
 }
 
-func (h *AdminHandler) DeleteImage(c *gin.Context) {
-	// TODO: implement
-}
-
 // Approve godoc
 // @Summary Approve ad
 // @Description Approve ad by ID (admin only)

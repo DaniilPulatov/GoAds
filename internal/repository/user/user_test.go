@@ -1,3 +1,4 @@
+//nolint:all // testpackage
 package user
 
 import (

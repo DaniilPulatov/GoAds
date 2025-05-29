@@ -13,10 +13,10 @@ type AdFileRepository interface {
 	Delete(ctx context.Context, file *entities.AdFile) (string, error)
 }
 type adFileRepo struct {
-	pool   db.Pool
+	db     db.Pool
 	logger customLogger.Logger
 }
 
-func NewAdFileRepo(db db.Pool, logTool customLogger.Logger) AdFileRepository {
-	return &adFileRepo{pool: db, logger: logTool}
+func NewAdFileRepo(pool db.Pool, logTool customLogger.Logger) AdFileRepository {
+	return &adFileRepo{db: pool, logger: logTool}
 }

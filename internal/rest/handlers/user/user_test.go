@@ -1,3 +1,4 @@
+//nolint:all // testpackage
 package user
 
 import (
@@ -509,5 +510,56 @@ func TestUserHandler_DeleteMyAdImage(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 		assert.Contains(t, w.Body.String(), "failed to delete ad image")
+	})
+}
+
+func TestUserHandler_GetMyAdsByFilter(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		mockService := new(user.MockUserService)
+		handler := &UserHandler{userService: mockService}
+		defer mockService.AssertExpectations(t)
+
+		expectedAds := []entities.Ad{
+			{ID: 1, Title: "Ad 1"},
+			{ID: 2, Title: "Ad 2"},
+		}
+		filter := entities.AdFilter{Status: "active", CategoryID: 2, Limit: 10, Page: 1}
+
+		mockService.On("GetMyAdsByFilter", mock.Anything, "user-1", &filter).
+			Return(expectedAds, nil)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		req := httptest.NewRequest(http.MethodGet,
+			"/ads/filter?status=active&category=2&limit=10&page=1", nil)
+		c.Request = req
+		c.Set("user_id", "user-1")
+
+		handler.GetMyAdsByFilter(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Contains(t, w.Body.String(), "Ad 1")
+		assert.Contains(t, w.Body.String(), "Ad 2")
+	})
+
+	t.Run("service error", func(t *testing.T) {
+		mockService := new(user.MockUserService)
+		handler := &UserHandler{userService: mockService}
+		defer mockService.AssertExpectations(t)
+
+		filter := entities.AdFilter{}
+		mockService.On("GetMyAdsByFilter", mock.Anything, "user-1", &filter).
+			Return(nil, errors.New("some error"))
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		req := httptest.NewRequest(http.MethodGet, "/ads/filter", nil)
+		c.Request = req
+		c.Set("user_id", "user-1")
+
+		handler.GetMyAdsByFilter(c)
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Contains(t, w.Body.String(), "failed to get user ads")
 	})
 }

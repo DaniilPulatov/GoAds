@@ -1,3 +1,4 @@
+//nolint:all // testpackage
 package ad
 
 import (
@@ -427,5 +428,84 @@ func TestAdRepo_GetStatistics(t *testing.T) {
 		stats, err := pool.GetStatistics(context.Background())
 		assert.Nil(t, err)
 		assert.NotNil(t, stats)
+	})
+}
+
+func TestAdRepo_Filter(t *testing.T) {
+	t.Run("error at filter ads", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		defer mockPool.AssertExpectations(t)
+
+		pool := &adRepo{db: mockPool}
+		mockPool.On("Query", mock.Anything, mock.Anything, mock.Anything).
+			Return(new(db.MockRows), errors.New("db error"))
+
+		ads, err := pool.Filter(context.Background(), &entities.AdFilter{})
+		assert.Nil(t, ads)
+		assert.Equal(t, repoerr.ErrGettingAllAds, err)
+	})
+
+	t.Run("success at filter ads", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		mockRows := new(db.MockRows)
+		defer mockPool.AssertExpectations(t)
+		defer mockRows.AssertExpectations(t)
+
+		pool := &adRepo{db: mockPool}
+		mockPool.On("Query", mock.Anything, mock.Anything, mock.Anything).
+			Return(mockRows, nil)
+
+		mockRows.On("Next").Return(true).Once()
+		mockRows.On("Next").Return(false).Once()
+		mockRows.On("Scan", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+			mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(nil).Once()
+		mockRows.On("Err").Return(nil)
+		mockRows.On("Close").Return()
+
+		ads, err := pool.Filter(context.Background(), &entities.AdFilter{})
+		assert.NotNil(t, ads)
+		assert.Nil(t, err)
+	})
+
+	t.Run("scan error at filter ads", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		mockRows := new(db.MockRows)
+		defer mockPool.AssertExpectations(t)
+		defer mockRows.AssertExpectations(t)
+
+		pool := &adRepo{db: mockPool}
+		mockPool.On("Query", mock.Anything, mock.Anything, mock.Anything).
+			Return(mockRows, nil)
+
+		mockRows.On("Next").Return(true).Once()
+		mockRows.On("Scan", mock.Anything, mock.Anything, mock.Anything,
+			mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+			mock.Anything).
+			Return(errors.New("scan error")).Once()
+		mockRows.On("Close").Return()
+
+		ads, err := pool.Filter(context.Background(), &entities.AdFilter{})
+		assert.Nil(t, ads)
+		assert.Equal(t, repoerr.ErrScan, err)
+	})
+
+	t.Run("rows error at filter ads", func(t *testing.T) {
+		mockPool := new(db.MockPool)
+		mockRows := new(db.MockRows)
+		defer mockPool.AssertExpectations(t)
+		defer mockRows.AssertExpectations(t)
+
+		pool := &adRepo{db: mockPool}
+		mockPool.On("Query", mock.Anything, mock.Anything, mock.Anything).
+			Return(mockRows, nil)
+
+		mockRows.On("Next").Return(false).Once()
+		mockRows.On("Err").Return(errors.New("rows error"))
+		mockRows.On("Close").Return()
+
+		ads, err := pool.Filter(context.Background(), &entities.AdFilter{})
+		assert.Nil(t, ads)
+		assert.Equal(t, repoerr.ErrScan, err)
 	})
 }

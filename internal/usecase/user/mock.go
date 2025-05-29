@@ -57,4 +57,12 @@ func (m *MockUserService) DeleteMyAdImage(ctx context.Context, userID string, fi
 	return args.Error(0)
 }
 
+func (m *MockUserService) GetMyAdsByFilter(ctx context.Context, userID string, filter *entities.AdFilter) ([]entities.Ad, error) {
+	args := m.Called(ctx, userID, filter)
+	if ads, ok := args.Get(0).([]entities.Ad); ok {
+		return ads, args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
 var _ UserAdvertisementService = (*MockUserService)(nil)

@@ -59,35 +59,30 @@ func (s *Server) Init() {
 	const basePath = "/api/v1"
 	baseGroup := s.mux.Group(basePath)
 
+	// Маршруты для аутентификации
 	authGroup := baseGroup.Group("/auth")
-	{
-		authGroup.POST("/register", s.authHandler.Register)
-		authGroup.POST("/login", s.authHandler.Login)
-	}
+	authGroup.POST("/register", s.authHandler.Register)
+	authGroup.POST("/login", s.authHandler.Login)
 
 	// Пользовательские маршруты
 	userGroup := baseGroup.Group("/ads")
 	userGroup.Use(s.mv.UserAuth())
-	{
-		userGroup.POST("/create", s.userHandler.CreateDraft)
-		userGroup.GET("/my", s.userHandler.GetMyAds)
-		userGroup.PUT("/:id", s.userHandler.UpdateMyAd)
-		userGroup.DELETE("/:id", s.userHandler.DeleteMyAd)
-		userGroup.POST("/:id/submit", s.userHandler.SubmitForModeration)
-		userGroup.POST("/:id/image", s.userHandler.AddImageToMyAd)
-		userGroup.GET("/:id/image", s.userHandler.GetImagesToMyAd)
-		userGroup.DELETE("/:id/image/:fid", s.userHandler.DeleteMyAdImage)
-	}
+	userGroup.POST("/create", s.userHandler.CreateDraft)
+	userGroup.GET("/my", s.userHandler.GetMyAds)
+	userGroup.PUT("/:id", s.userHandler.UpdateMyAd)
+	userGroup.DELETE("/:id", s.userHandler.DeleteMyAd)
+	userGroup.POST("/:id/submit", s.userHandler.SubmitForModeration)
+	userGroup.POST("/:id/image", s.userHandler.AddImageToMyAd)
+	userGroup.GET("/:id/image", s.userHandler.GetImagesToMyAd)
+	userGroup.DELETE("/:id/image/:fid", s.userHandler.DeleteMyAdImage)
+	userGroup.GET("/filter", s.userHandler.GetMyAdsByFilter)
 
 	// Админские маршруты
 	adminGroup := baseGroup.Group("/admin")
 	adminGroup.Use(s.mv.AdminAuth())
-	{
-		adminGroup.GET("/ads", s.adminHandler.GetAllAds)
-		adminGroup.GET("/stats", s.adminHandler.GetStatistics)
-		adminGroup.DELETE("/ads/:id", s.adminHandler.DeleteAd)
-		adminGroup.POST("/ads/:id/approve", s.adminHandler.Approve)
-		adminGroup.POST("/ads/:id/reject", s.adminHandler.Reject)
-		//adminGroup.DELETE("/ads/:id/image/:fid", s.adminHandler.DeleteImage)
-	}
+	adminGroup.GET("/ads", s.adminHandler.GetAllAds)
+	adminGroup.GET("/stats", s.adminHandler.GetStatistics)
+	adminGroup.DELETE("/ads/:id", s.adminHandler.DeleteAd)
+	adminGroup.POST("/ads/:id/approve", s.adminHandler.Approve)
+	adminGroup.POST("/ads/:id/reject", s.adminHandler.Reject)
 }

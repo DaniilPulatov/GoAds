@@ -559,3 +559,57 @@ func TestService_DeleteMyAdImage(t *testing.T) {
 		assert.NoError(t, err)
 	})
 }
+
+func TestService_GetMyAdsByFilter(t *testing.T) {
+	t.Run("repo error", func(t *testing.T) {
+		mockRepo := ad.MockAdRepo{}
+		mockFileRepo := adfile.MockAdFileRepository{}
+		defer mockRepo.AssertExpectations(t)
+		defer mockFileRepo.AssertExpectations(t)
+
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
+		filter := entities.AdFilter{}
+		mockRepo.On("Filter", mock.Anything, mock.Anything).
+			Return([]entities.Ad{}, errors.New("db error"))
+
+		ads, err := service.GetMyAdsByFilter(context.Background(), "1", &filter)
+		assert.Nil(t, ads)
+		assert.Equal(t, repoerr.ErrGettingAdsByUserID, err)
+	})
+
+	t.Run("user has no ads", func(t *testing.T) {
+		mockRepo := ad.MockAdRepo{}
+		mockFileRepo := adfile.MockAdFileRepository{}
+		defer mockRepo.AssertExpectations(t)
+		defer mockFileRepo.AssertExpectations(t)
+
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
+		filter := entities.AdFilter{}
+		mockRepo.On("Filter", mock.Anything, mock.Anything).
+			Return([]entities.Ad{}, nil)
+
+		ads, err := service.GetMyAdsByFilter(context.Background(), "1", &filter)
+		assert.Nil(t, ads)
+		assert.Equal(t, usecaseerr.ErrUserNotHaveAds, err)
+	})
+
+	t.Run("success", func(t *testing.T) {
+		mockRepo := ad.MockAdRepo{}
+		mockFileRepo := adfile.MockAdFileRepository{}
+		defer mockRepo.AssertExpectations(t)
+		defer mockFileRepo.AssertExpectations(t)
+
+		service := NewUserService(&mockRepo, &mockFileRepo, customLogger.Logger{})
+		expectedAds := []entities.Ad{
+			{ID: 1, AuthorID: "1", Title: "ad1"},
+			{ID: 2, AuthorID: "1", Title: "ad2"},
+		}
+		filter := entities.AdFilter{}
+		mockRepo.On("Filter", mock.Anything, mock.Anything).
+			Return(expectedAds, nil)
+
+		ads, err := service.GetMyAdsByFilter(context.Background(), "1", &filter)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedAds, ads)
+	})
+}

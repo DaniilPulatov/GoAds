@@ -4,7 +4,9 @@ import (
 	"errors"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -51,4 +53,16 @@ func IsValidPhone(phone string) bool {
 
 func IsValidPassword(password string) bool {
 	return len(password) >= minPasswordLength
+}
+
+func IsSafeLogPath(path string) bool {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		return false
+	}
+	base, err := filepath.Abs("storage/logs")
+	if err != nil {
+		return false
+	}
+	return strings.HasPrefix(abs, base)
 }

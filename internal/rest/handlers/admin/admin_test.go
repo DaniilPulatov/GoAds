@@ -1,3 +1,4 @@
+//nolint:all // testpackage
 package admin
 
 import (
@@ -258,7 +259,6 @@ func TestAdminHandler_DeleteAd(t *testing.T) {
 		handler.DeleteAd(c)
 
 		assert.Equal(t, http.StatusOK, w.Code)
-		//assert.Contains(t, w.Body.String(), "Ad deleted")
 	})
 
 	t.Run("invalid id", func(t *testing.T) {

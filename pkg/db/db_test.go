@@ -19,11 +19,6 @@ func TestNewDB(t *testing.T) {
 
 	t.Run("check valid dsn", func(t *testing.T) {
 		t.Skip("Требуется запущенная локальная база данных PostgresSQL")
-		// dsn := "postgres://user:password@localhost:5432/dbname?sslmode=disable"
-		// db, err := NewDB(dsn)
-		// require.NoError(t, err)
-		// assert.NotNil(t, db)
-		// db.Close()
 	})
 }
 

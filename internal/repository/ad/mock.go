@@ -86,3 +86,11 @@ func (m *MockAdRepo) GetStatistics(ctx context.Context) (entities.AdStatistics, 
 	args := m.Called(ctx)
 	return args.Get(0).(entities.AdStatistics), args.Error(1)
 }
+
+func (m *MockAdRepo) Filter(ctx context.Context, filter *entities.AdFilter) ([]entities.Ad, error) {
+	args := m.Called(ctx, filter)
+	if ads, ok := args.Get(0).([]entities.Ad); ok {
+		return ads, args.Error(1)
+	}
+	return nil, args.Error(1)
+}
