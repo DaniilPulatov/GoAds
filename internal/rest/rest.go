@@ -31,10 +31,10 @@ type Server struct {
 	authHandler  *authHandle.AuthHandler
 	adminHandler *admin.AdminHandler
 	userHandler  *user.UserHandler
-	middleware   *middleware.Middleware
+	mv           *middleware.Middleware
 }
 
-func NewServer(mux *gin.Engine, authHandler *authHandle.AuthHandler, middleware *middleware.Middleware,
+func NewServer(mux *gin.Engine, authHandler *authHandle.AuthHandler, mv *middleware.Middleware,
 	adminHandler *admin.AdminHandler, userHandler *user.UserHandler) *Server {
 	mux.Use(gin.Recovery())
 	mux.Use(gin.Logger())
@@ -44,7 +44,7 @@ func NewServer(mux *gin.Engine, authHandler *authHandle.AuthHandler, middleware 
 		authHandler:  authHandler,
 		adminHandler: adminHandler,
 		userHandler:  userHandler,
-		middleware:   middleware,
+		mv:           mv,
 	}
 
 }
@@ -67,7 +67,7 @@ func (s *Server) Init() {
 
 	// Пользовательские маршруты
 	userGroup := baseGroup.Group("/ads")
-	userGroup.Use(s.middleware.UserAuth())
+	userGroup.Use(s.mv.UserAuth())
 	{
 		userGroup.POST("/create", s.userHandler.CreateDraft)
 		userGroup.GET("/my", s.userHandler.GetMyAds)
@@ -81,12 +81,13 @@ func (s *Server) Init() {
 
 	// Админские маршруты
 	adminGroup := baseGroup.Group("/admin")
-	adminGroup.Use(s.middleware.AdminAuth())
+	adminGroup.Use(s.mv.AdminAuth())
 	{
 		adminGroup.GET("/ads", s.adminHandler.GetAllAds)
 		adminGroup.GET("/stats", s.adminHandler.GetStatistics)
 		adminGroup.DELETE("/ads/:id", s.adminHandler.DeleteAd)
 		adminGroup.POST("/ads/:id/approve", s.adminHandler.Approve)
 		adminGroup.POST("/ads/:id/reject", s.adminHandler.Reject)
+		//adminGroup.DELETE("/ads/:id/image/:fid", s.adminHandler.DeleteImage)
 	}
 }

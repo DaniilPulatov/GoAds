@@ -58,8 +58,14 @@ func (s *service) UpdateMyAd(ctx context.Context, userID string, adEntity *entit
 		s.logger.ERROR("error getting my ad by ID: ", err)
 		return usecaseerr.ErrGettingAdByID
 	}
-	if ad == nil || ad.AuthorID != userID {
-		s.logger.ERROR("user not found")
+	if ad == nil {
+		s.logger.ERROR("ad is nil")
+		return usecaseerr.ErrGettingAdByID
+	}
+	if ad.AuthorID != userID {
+		s.logger.WARN("userID denied: ", userID)
+		s.logger.WARN("ad author denied: ", ad.AuthorID)
+		s.logger.ERROR("access denied")
 		return usecaseerr.ErrAccessDenied
 	}
 
